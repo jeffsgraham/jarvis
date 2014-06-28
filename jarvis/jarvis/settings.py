@@ -10,6 +10,9 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+#private_settings.py holds the secret key, and auth info specific to a server
+import private_settings
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -17,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'd5aks6$9ubf8=@bvxl_as=ij_jc79xwilk%8k4wtlpu_&ic5hr'
+SECRET_KEY = private_settings.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -36,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'south',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -56,11 +60,15 @@ WSGI_APPLICATION = 'jarvis.wsgi.application'
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+	 'default': {
+		'ENGINE': 'django.db.backends.mysql',
+		'NAME': private_settings.DB_NAME,
+		'USER': private_settings.DB_USER,
+		'PASSWORD': private_settings.DB_PASSWORD,
+		'HOST': private_settings.DB_HOST,
+		'PORT': private_settings.DB_PORT,
+		}
+	 }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
