@@ -39,7 +39,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'south',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -61,7 +60,7 @@ WSGI_APPLICATION = 'jarvis.wsgi.application'
 
 DATABASES = {
 	 'default': {
-		'ENGINE': 'django.db.backends.mysql',
+		'ENGINE': 'django_mongodb_engine',
 		'NAME': private_settings.DB_NAME,
 		'USER': private_settings.DB_USER,
 		'PASSWORD': private_settings.DB_PASSWORD,
@@ -83,8 +82,13 @@ USE_L10N = True
 
 USE_TZ = True
 
+TEMPLATE_DIRS = (
+            '/home/ubuntu/workspace/jarvis/inventory/templates',
+            )
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
-
+STATICFILES_DIRS = (
+        os.path.join(BASE_DIR, 'static'),
+        )
 STATIC_URL = '/static/'
