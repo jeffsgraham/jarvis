@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 #private_settings.py holds the secret key, and auth info specific to a server
-import private_settings
+import jarvis.private_settings as private_settings
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -39,7 +39,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'djangotoolbox',
 )
 
 MIDDLEWARE_CLASSES = (
