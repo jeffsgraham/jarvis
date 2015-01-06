@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from djangotoolbox.fields import EmbeddedModelField, ListField, DictField, SetField
 
 # Create your models here.
@@ -20,10 +21,6 @@ class Building(models.Model):
 class Room(models.Model):
   number = models.CharField(max_length=10)
 
-  #returns a list of all items associated with this room
-  def getAllItems(self):
-  	 return self.item_set.all()
-	 
   def __str__(self):
   	 return self.number
 
@@ -35,18 +32,59 @@ class Item(models.Model):
   model = models.CharField(max_length=50)
   created = models.DateTimeField(auto_now_add=True)
   updated = models.DateTimeField(auto_now=True)
-  room_id = models.ForeignKey(Room, null=True)
+  room = models.ForeignKey('Room', null=True)
+  item = models.ForeignKey('self', null=True)
 
   #dyn fields
   attributes = DictField()
   ipInterfaces = ListField(EmbeddedModelField('IPInterface'))
-  subitems = ListField(EmbeddedModelField('Item'))
 
-  def save(self):
+  def save_with_revisions(self, currentUser):
   	 #get old version of document
 	 old = Item.objects.filter(pk=self.pk)[0]
 	 print(old)
+  
+	 #check for any changes
+	 if(old != self or old.attributes != self.attributes):
+
+	 	#create ItemRevision object
+	 	revision = ItemRevision.objects.create(item=self, user=currentUser)
+		print('revision created')
+		if(old.itemType != self.itemType):
+		  #store old itemType
+		  revision.changes['itemType'] = old.itemType
+
+		if(old.manufacturer != self.manufacturer):
+		  #store old manufacturer
+		  revision.changes['manufacturer'] = old.manufacturer
+
+		if(old.model != self.model):
+		  #store old model
+		  revision.changes['model'] = old.model
+
+		#store old attributes that have been removed or changed
+		for key, value in old.attributes.iteritems():
+		  if not (key in self.attributes and self.attributes[key] == value):
+		  	 revision.changes[key] = value
+
+		#store newly aquired attributes as null
+		for key, value in self.attributes.iteritems():
+		  if not key in old.attributes:
+			 revision.changes[key] = None
+
+		#store room
+		if(old.room != self.room):
+		  revision.changes['room'] = old.room
+
+		#store item attachment
+		if(old.item != self.item):
+		  revision.changes['item'] = old.item
+
+		revision.save()
+
 	 super(Item, self).save()
+
+  
 
   def __str__(self):
   	 return self.itemType + " " + self.manufacturer + " " + self.model
@@ -55,11 +93,36 @@ class IPInterface(models.Model):
   ipAddress = models.CharField(max_length=50, unique=True)
   macAddress = models.CharField(max_length=20, unique=True, null=True)
   
-
-#Each instance of ItemRevision stores all revision history for a single
-# instance of the Item class.
+#Each instance represents changes to a single item at a given time
 class ItemRevision(models.Model):
-  itemId = models.ForeignKey(Item)
+  item = models.ForeignKey(Item)
+  revised = models.DateTimeField(auto_now_add=True)
+  user = models.ForeignKey(settings.AUTH_USER_MODEL)
   changes = DictField()
 
+  #reverts an item back to the previous state described by this ItemRevision 
+  # instance. This should only be called by the Item.revertChanges() method,
+  # as all ItemRevisions done since this ItemRevision must be reverted before
+  # this one is reverted.
+  def revert(self):
+	 for key, value in changes.iteritems():
+		if key == 'itemType':
+		  self.item.itemType = value
+		elif key == 'manufacturer':
+		  self.item.manufacturer = value
+		elif key == 'model':
+		  self.item.model = value
+		elif key == 'room':
+		  self.item.room = value
+		elif key == 'item':
+		  self.item.item = value
+		elif value is None:
+		  del self.item.attribute[key]
+		else:
+		  self.item.attributes[key] = value
+		  
+	 
+
+  def __str__(self):
+  	 return "Item: " + self.item + " Revised: " + self.revised + " by: " + self.user
 

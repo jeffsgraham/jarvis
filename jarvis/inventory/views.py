@@ -9,18 +9,19 @@ from models import *
 # Create your views here.
 class Home(View):
   def get(self, request):
-	 return render_to_response('Template.htm', locals())
+  	 buildings = Building.objects.all()
+	 return render_to_response('template.html', locals())
 
 class DBTest(View):
   def get(self, request):
 	 return render_to_response('dbtest.html', locals())
 
 class RoomItemList(ListView):
-  model = Item
-  
+  template_name = "room_list.html"
+
   def get_queryset(self):
-  	 self.room_id = get_object_or_404(Room, pk=self.args[0])
-  	 return Item.objects.filter(room_id=self.room_id)
+  	 self.room = get_object_or_404(Room, id=self.args[0])
+  	 return Item.objects.filter(room_id=self.room)
 
 
 	 

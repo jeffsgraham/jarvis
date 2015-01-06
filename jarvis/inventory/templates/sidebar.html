@@ -1,22 +1,30 @@
 {% block sidebar %}
 <div class="col-sm-3 col-md-2 sidebar">
+  <h4>Links</h4>
   <ul class="nav nav-sidebar">
-	<li class="active"><a href="#">Overview</a></li>
-	<li><a href="#">Reports</a></li>
-	<li><a href="#">Analytics</a></li>
-	<li><a href="#">Export</a></li>
+	 <li class="active"><a href="#">Overview</a></li>
+	 <li><a href="#">Reports</a></li>
+	 <li><a href="#">Analytics</a></li>
+	 <li><a href="#">Export</a></li>
   </ul>
+  <hr />
+  <h4>Buildings</h4>
   <ul class="nav nav-sidebar">
-	<li><a href="">Nav item</a></li>
-	<li><a href="">Nav item again</a></li>
-	<li><a href="">One more nav</a></li>
-	<li><a href="">Another nav item</a></li>
-	<li><a href="">More navigation</a></li>
+	 {% for building in buildings %}
+		<li><a href="/building/{{ building.abbrev }}/">{{ building.name }}</a></li>
+	 {% endfor %}
   </ul>
-  <ul class="nav nav-sidebar">
-	<li><a href="">Nav item again</a></li>
-	<li><a href="">One more nav</a></li>
-	<li><a href="">Another nav item</a></li>
-  </ul>
+  <hr />
+  <h4>Buildings</h4>
+  <div id="jqui-accordion">
+  {% for building in buildings %}
+	 <h3 class="building-list-item"><a href="">{{ building.name }}</a></h3>
+	 <div>
+		{% for room in building.rooms %}
+		  <a href="/room/{{ room.pk }}/">{{room.number}}</a>
+		{% endfor %}
+	 </div>
+  {% endfor %}
+  </div>
 </div>
 {% endblock %}
