@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'djangotoolbox',
+    'inventory',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -81,7 +82,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 TEMPLATE_DIRS = (
             '/home/ubuntu/workspace/jarvis/inventory/templates',
