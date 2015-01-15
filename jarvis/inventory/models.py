@@ -31,8 +31,9 @@ class Item(models.Model):
     manufacturer = models.CharField(max_length=50)
     model = models.CharField(max_length=50)
     created = models.DateTimeField(auto_now_add=True)
-    room = models.ForeignKey('Room', null=True)
-    item = models.ForeignKey('self', null=True, related_name="subItem")
+    room = models.ForeignKey('Room', null=True, on_delete=models.SET_NULL)
+    item = models.ForeignKey('self', null=True, related_name="subItem", on_delete=models.SET_NULL)
+    active = models.BooleanField(default=True)
 
     #dyn fields
     attributes = DictField()
@@ -76,11 +77,21 @@ class Item(models.Model):
 
                 #store room
                 if(old.room != self.room):
-                    revision.changes['room'] = old.room
+                    if(old.room is not None):
+                        revision.changes['room'] = old.room.id
+                    else:
+                        revision.changes['room'] = None
 
                 #store item attachment
                 if(old.item != self.item):
-                    revision.changes['item'] = old.item
+                    if(old.item is not None):
+                        revision.changes['item'] = old.item.id
+                    else:
+                        revision.changes['item'] = None
+                
+                #store active bool
+                if(old.active != self.active):
+                    revision.changes['active'] = old.active
                 
                 #save new revision object to DB
                 revision.save()
@@ -108,7 +119,17 @@ class Item(models.Model):
                 elif key == 'room':
                     self.room = value
                 elif key == 'item':
-                    self.item = value
+                    if(value is not None):
+                        #catch case where item no longer exists
+                        try:
+                            self.item = Item.objects.get(id=value)
+                        except Item.DoesNotExist:
+                            self.item = None
+                    else:
+                        #revert to unattached state
+                        self.item = value
+                elif key == 'active':
+                    self.active = value
                 elif value is None: #remove new attributes
                     del self.attributes[key]
                 else: #revert old attributes
@@ -123,6 +144,11 @@ class Item(models.Model):
         #save reverted state
         self.save()
 
+    #overload delete to prevent data loss
+    def delete(self):
+        self.active = False
+        self.save_with_revisions()
+
     #overload __eq__() to only compare important fields
     def __eq__(self, compare):
         #check that object type is the same
@@ -133,7 +159,8 @@ class Item(models.Model):
             compare.manufacturer == self.manufacturer and \
             compare.model == self.model and \
             compare.attributes == self.attributes and \
-            compare.item == self.item and compare.room == self.room:
+            compare.item == self.item and compare.room == self.room and \
+            compare.active == self.active:
             return True
         else:
             return False
