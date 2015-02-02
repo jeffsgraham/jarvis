@@ -1,0 +1,28 @@
+{% extends "template.html" %}
+{% block secondrow %}
+<h2 class="sub-header">Section title</h2>
+<div class="table-responsive">
+  <table class="table table-striped">
+	 <thead>
+		<tr>
+		  <th>#</th>
+		  <th>Header</th>
+		  <th>Header</th>
+		  <th>Header</th>
+		  <th>Header</th>
+		</tr>
+	 </thead>
+	 <tbody>
+		{% for item in object_list %}
+		<tr>
+		  <td>{{item.itemType}}</td>
+		  <td>{{item.manufacturer}}</td>
+		  <td>{{item.model}}</td>
+		  <td>{{item.created}}</td>
+		  <td>{{item.updated}}</td>
+		</tr>
+		{% endfor %}
+	 </tbody>
+  </table>
+</div>
+{% endblock %}

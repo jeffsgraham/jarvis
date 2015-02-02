@@ -1,0 +1,84 @@
+.building-list-item {
+  padding: .5em 0em .5em 0em !important;
+}
+
+/* force select highlighting to span full width of element 
+ * for sidebar room lists */
+.ui-accordion .ui-accordion-content {
+  padding: .5em !important;
+}
+
+/* indent sidebar room list text */
+.ui-accordion .ui-accordion-content > li > a {
+    padding-left: 4em !important;
+}
+
+.jarv-active-grey > a {
+    background-color: grey !important;
+}
+
+.jarv-action-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.ui-dialog
+{
+    z-index: 1031;
+    background-color: #f5f5f5;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 0em;
+}
+
+.ui-dialog-titlebar {
+    background-color: #101010;
+    margin: 0em !important;
+    color: #777;
+}
+.ui-widget-overlay { 
+    background: #aaaaaa url(images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x !important;
+    opacity: .5 !important;
+    filter:Alpha(Opacity=100) !important;  
+}
+.jarv-attr-edit-table {
+    background-color: #f5f5f5;
+}
+.jarv-attr-edit-table > tbody > tr > td {
+    padding: 8px;
+}
+.jarv-attribute-add {
+    background-image: url("/static/img/ui-icons_888888_256x240.png");
+    background-position: -96px -128px;
+    background-repeat: no-repeat;
+    min-height: auto;
+    vertical-align: 50%;
+    border: 1px solid green;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#jarv-error-message {
+    color: red;
+}
+
+.ui-icon-closethick {
+    background-image: url("/static/img/ui-icons_888888_256x240.png");
+    background-position: -96px -128px;
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+    
+}
+div.hidden {
+    display: none;
+}
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

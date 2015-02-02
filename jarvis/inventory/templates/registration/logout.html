@@ -1,0 +1,35 @@
+{% extends "template.html" %}
+
+{% block javascript %}
+<script>
+    var message = '<div id="logout-dialog" title="Logged Out">' +
+        'You have been logged out.' +
+    '</div>';
+
+    $('body').append(message);
+
+    var dialog = $('#logout-dialog').dialog({
+        autoOpen: false,
+        height: "auto",
+        width: "auto",
+        modal: true,
+        draggable: false,
+        closeOnEscape: false,
+
+        buttons: {
+            "Login Again": function() {
+                //redirect to login page
+                window.location.replace("/accounts/login/");
+            }
+        },
+        close: function(){
+            //do nothing
+        },
+        open: function(event, ui) {
+            //hide close button
+            $(".ui-dialog-titlebar-close").hide();
+        }
+    });
+    dialog.dialog("open");
+</script>
+{% endblock %}

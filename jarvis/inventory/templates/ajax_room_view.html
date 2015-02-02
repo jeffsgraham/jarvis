@@ -1,0 +1,33 @@
+{% load staticfiles %}
+<h1 class="page-header">{{pagetitle}}</h1>
+<div id="jarv-content-url" class="hidden">{{content_url}}</div>
+
+
+<h2 class="sub-header">{{locationinfo}}  <img class="jarv-action-icon" onclick="jarv_item_form('/ajax_add_item/{{room.id}}');" src="{% static 'img/add-icon.png' %}" />
+</h2>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Manufacturer</th>
+                <th>Model</th>
+                <th>Age</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{item.itemType}}</td>
+                <td>{{item.manufacturer}}</td>
+                <td>{{item.model}}</td>
+                <td>{{item.age}}</td>
+                <td>
+                    <img class="jarv-action-icon" onclick="jarv_item_form('/ajax_edit_item/{{item.id}}');" src="{% static 'img/edit-icon.png' %}" />
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

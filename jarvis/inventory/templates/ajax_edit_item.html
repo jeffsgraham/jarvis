@@ -1,0 +1,65 @@
+<div id="edit-dialog" title="{{ title|default:'Form' }}">
+    <p id="jarv-error-message" class="validateTips"></p>
+
+    <form id="jarv-item-form" action="{{submit_url}}">
+    {% csrf_token %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Manufacturer</th>
+                <th>Model</th>
+            </tr>
+        </thead>
+        <tbody id="jarv-edit-body">
+            <tr>
+                <td>
+                    <input type="text" name="itemType" id="itemType" value="{{item.itemType}}" class="text ui-widget-content ui-corner-all" />
+                </td>
+                <td>
+                    <input type="text" name="manufacturer" id="manufacturer" value="{{item.manufacturer}}" class="text ui-widget-content ui-corner-all" />
+                </td>
+                <td>
+                    <input type="text" name="model" id="model" value="{{item.model}}" class="text ui-widget-content ui-corner-all" />
+                </td>
+            </tr>
+            <tr>
+                <th colspan=3>Attributes</th>
+            </tr>
+            {% for attr, value in item.attributes.items %}
+            {% if forloop.counter0|divisibleby:3 %}
+            <tr class="jarv-edit-attribute-row">
+            {% endif %}
+                <td class="jarv-edit-attribute" >
+                    <table class="jarv-attr-edit-table">
+                        <tr>
+                            <td>
+                                <input type="text" name="{{attr}}-key" id="{{attr}}-key" value="{{attr}}" class="text ui-widget-content ui-corner-all" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" name="{{attr}}-value" id="{{attr}}-value" value="{{value}}" class="text ui-widget-content ui-corner-all" />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            {% if forloop.counter|divisibleby:3 or forloop.last%}
+            </tr>
+            {% endif %}
+
+
+            {% endfor %}
+        </tbody>
+    </table>
+    <input type="hidden" name="id" id="id" value="{{item.id}}" />
+    {% if room %}
+    <input type="hidden" name="room" id="room" value="{{room.id}}" />
+    {% elif item.room_id %}
+    <input type="hidden" name="room" id="room" value="{{item.room_id}}" />
+    {% else %}
+    <input type="hidden" name="room" id="room" value="" />
+    {% endif %}
+    </form>
+</div>
