@@ -1,30 +1,29 @@
 {% block sidebar %}
 <div class="col-sm-3 col-md-2 sidebar">
-  <h4>Links</h4>
-  <ul class="nav nav-sidebar">
-	 <li class="active"><a href="#">Overview</a></li>
-	 <li><a href="#">Reports</a></li>
-	 <li><a href="#">Analytics</a></li>
-	 <li><a href="#">Export</a></li>
-  </ul>
-  <hr />
-  <h4>Buildings</h4>
-  <ul class="nav nav-sidebar">
-	 {% for building in buildings %}
-		<li><a href="/building/{{ building.abbrev }}/">{{ building.name }}</a></li>
-	 {% endfor %}
-  </ul>
-  <hr />
-  <h4>Buildings</h4>
-  <div id="jqui-accordion">
-  {% for building in buildings %}
-	 <h3 class="building-list-item"><a href="">{{ building.name }}</a></h3>
-	 <div>
-		{% for room in building.rooms %}
-		  <a href="/room/{{ room.pk }}/">{{room.number}}</a>
-		{% endfor %}
-	 </div>
-  {% endfor %}
-  </div>
+    <h4>Links</h4>
+    <ul class="nav nav-sidebar">
+        <li class="jarv-sidebar-nav active"><a href="#">Inventory</a></li>
+        <li class="jarv-sidebar-nav"><a href="#">Reports</a></li>
+        <li class="jarv-sidebar-nav"><a href="#">Admin</a></li>
+    </ul>
+    <hr />
+
+
+    <h4>Buildings</h4>
+    <ul id="jarv-building-list" class="nav nav-sidebar">
+        {% for building in buildings %}
+        <li class="jarv-sidebar-building">
+            <a href="#" >{{ building.name }}</a>
+            <ul id="jarv-room-list-{{building.id}}" class="nav nav-sidebar">
+                {% for room in rooms %}
+                {% if room.building_id == building.id %}
+                <li class="jarv-sidebar-room"><a onclick="jarv_get_content('/ajax_room/{{room.pk}}');" href="#">{{room.number}}</a></li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+
 </div>
 {% endblock %}

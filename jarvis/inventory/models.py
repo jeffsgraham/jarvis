@@ -4,23 +4,19 @@ from djangotoolbox.fields import EmbeddedModelField, ListField, DictField, SetFi
 from copy import copy, deepcopy
 
 
+
 #stores relevant information about buildings
 class Building(models.Model):
     name = models.CharField(max_length=50)
     abbrev = models.CharField(max_length=3)
-    rooms = ListField(EmbeddedModelField('Room'))
     
-    def add_room(self, room):
-        self.rooms.append(room)
-        self.rooms.sort()
-  
     def __str__(self):
         return self.name + " (" + self.abbrev + ")"
 
 #Stores relevant information about rooms
 class Room(models.Model):
     number = models.CharField(max_length=10)
-
+    building = models.ForeignKey('Building')
     def __str__(self):
         return self.number
 
@@ -31,12 +27,26 @@ class Item(models.Model):
     manufacturer = models.CharField(max_length=50)
     model = models.CharField(max_length=50)
     created = models.DateTimeField(auto_now_add=True)
-    room = models.ForeignKey('Room', null=True, on_delete=models.SET_NULL)
+    room = models.ForeignKey('Room', null=True, blank=True, on_delete=models.SET_NULL)
     item = models.ForeignKey('self', null=True, related_name="subItem", on_delete=models.SET_NULL)
     active = models.BooleanField(default=True)
 
     #dyn fields
     attributes = DictField()
+
+    #computed fields
+    #compute approximate age in months and years, return as string
+    @property
+    def age(self):
+        months = ((self.created.now() - self.created).days) / 30
+        years = months / 12
+        months = months % 12
+        #don't clutter output with 0 years
+        if years > 0:
+            return str(years) + "yrs, " + str(months) + "mo"
+        else:
+            return str(months) + "months"
+
 
     def save_with_revisions(self, currentUser=None):
         #get old version of document
@@ -105,6 +115,7 @@ class Item(models.Model):
     def revert(self, revision):
         #get revision history sorted by date
         revisions = ItemRevision.objects.filter(item=self).order_by("-revised")
+        #TODO: check that revision is in revisions list
         for rev in revisions:
 
             #revert to this revision
