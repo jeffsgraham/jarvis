@@ -6,23 +6,50 @@ from datetime import datetime
 
 
 
-#stores relevant information about buildings
 class Building(models.Model):
+    """stores relevant information about buildings.
+
+    Attributes:
+        name (CharField): Building's name.
+        abbrev (CharField): Buiding's name abbreviated to three letters.
+
+    """
     name = models.CharField(max_length=50)
     abbrev = models.CharField(max_length=3)
     
     def __str__(self):
         return self.name + " (" + self.abbrev + ")"
 
-#Stores relevant information about rooms
 class Room(models.Model):
+    """Stores relevant information about rooms.
+
+    Attributes:
+        number (CharField): The room's number , i.e. "101", "304A"...
+        building (ForeignKey): The building this room is in.
+
+    """
     number = models.CharField(max_length=10)
     building = models.ForeignKey('Building')
+
     def __str__(self):
         return self.number
 
-#Stores all information about a single item
 class Item(models.Model):
+    """Stores all information about a single item.
+
+    Attributes:
+        itemType (CharField): The type of the described item, i.e. "Computer".
+        manufacturer (CharField): The manufacturer of this item.
+        model (CharField): The model of equipment this item describes.
+        created (DateTimeField): When this item was added to inventory.
+        room (ForeignKey): The room (if any) this item resides in.
+        item (ForeignKey): The parent item this item is attached to. 
+            In the case of a video card this would point to the parent computer.
+        active (BooleanField): Whether this item is an active record or 
+            historical data.
+        attributes (DictField): Item attributes i.e. {Serial: 1234, IP: 1.2.3.4}
+
+    """
     #static fields
     itemType = models.CharField(max_length=50)
     manufacturer = models.CharField(max_length=50)
@@ -36,9 +63,14 @@ class Item(models.Model):
     attributes = DictField()
 
     #computed fields
-    #compute approximate age in months and years, return as string
     @property
     def age(self):
+        """Compute approximate age in months and years
+
+        Returns:
+            Computed age of item as string
+
+        """
         months = ((datetime.now() - self.created).days) / 30
         years = months / 12
         months = months % 12
@@ -50,6 +82,13 @@ class Item(models.Model):
 
 
     def save_with_revisions(self, currentUser=None):
+        """Add changes to item to rev history and then save the changes
+        
+        Args:
+            current_User: the user who initiated these changes
+
+        """
+
         #get old version of document
 	old = Item.objects.filter(pk=self.pk)
         
@@ -111,9 +150,13 @@ class Item(models.Model):
         self.save()
 
   
-    #reverts an item back to the previous state described by the given
-    # ItemRevision instance.
     def revert(self, revision):
+        """Revert item to state described in specified ItemRevision.
+
+        Args:
+            revision: The ItemRevision to be reverted back to.
+
+        """
         #get revision history sorted by date
         revisions = ItemRevision.objects.filter(item=self).order_by("-revised")
         #TODO: check that revision is in revisions list
@@ -156,13 +199,13 @@ class Item(models.Model):
         #save reverted state
         self.save()
 
-    #overload delete to prevent data loss
     def delete(self):
+        """Override delete to prevent data loss."""
         self.active = False
         self.save_with_revisions()
 
-    #overload __eq__() to only compare important fields
     def __eq__(self, compare):
+        """Override __eq__() to only compare important fields"""
         #check that object type is the same
         if not isinstance(compare, Item):
             return False
@@ -180,14 +223,23 @@ class Item(models.Model):
     def __str__(self):
         return str(self.itemType) + " " + str(self.manufacturer) + " " + str(self.model)
 
-#Each instance represents changes to a single item at a given time
 class ItemRevision(models.Model):
+    """Each instance represents changes to a single item at a given time.
+
+    Attributes:
+        item (ForeignKey): The item this revision is linked to.
+        revised (DateTimeField): The date and time this revision occurred.
+        user (ForeignKey): The user who instigated this revision.
+        changes (DictField): The changes described by this revision.
+
+    """
     item = models.ForeignKey(Item)
     revised = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
     changes = DictField() 
 
     def __eq__(self, compare):
+        """Override __eq__() to only compare important fields"""
         if not isinstance(compare, ItemRevision):
             return False
         if self.revised == compare.revised and self.user == compare.user and \

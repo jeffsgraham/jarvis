@@ -4,10 +4,10 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
+    #Standard view urls
     url(r'^$', MainList.as_view()),
 
-    #ajax urls
+    #AJAX view urls
     url(r'^ajax_main_list/$', AjaxMainList.as_view()),
     url(r'^ajax_room/([\w+]+)/$', AjaxRoomView.as_view()),
     url(r'^ajax_edit_item/([\w+]+)/$', AjaxEditItem.as_view()),
