@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from djangotoolbox.fields import EmbeddedModelField, ListField, DictField, SetField
 from copy import copy, deepcopy
+from datetime import datetime
 
 
 
@@ -38,7 +39,7 @@ class Item(models.Model):
     #compute approximate age in months and years, return as string
     @property
     def age(self):
-        months = ((self.created.now() - self.created).days) / 30
+        months = ((datetime.now() - self.created).days) / 30
         years = months / 12
         months = months % 12
         #don't clutter output with 0 years
