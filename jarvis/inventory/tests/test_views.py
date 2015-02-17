@@ -67,7 +67,10 @@ class AjaxEditItemTestCase(AbstractViewGetTests, TestCase):
     
     def setUp(self):
         super(AjaxEditItemTestCase, self).setUp()
-        item = Item.objects.create(itemType="Computer", manufacturer="HP", model="DC8300")
+        compType = Type.objects.get_or_create(name="Computer")[0]
+        hpManuf = Manufacturer.objects.get_or_create(name="HP")[0]
+        dcModel = Model.objects.get_or_create(name="DC8300")[0]
+        item = Item.objects.create(itemType=compType, manufacturer=hpManuf, model=dcModel)
         self.base_url += item.id + "/"
 
 """

@@ -3,8 +3,7 @@ from django.conf import settings
 from djangotoolbox.fields import EmbeddedModelField, ListField, DictField, SetField
 from copy import copy, deepcopy
 from datetime import datetime
-
-
+from fields import CodeTableField
 
 class Building(models.Model):
     """stores relevant information about buildings.
@@ -34,6 +33,25 @@ class Room(models.Model):
     def __str__(self):
         return self.number
 
+class Manufacturer(models.Model):
+    name = models.CharField(max_length=50, primary_key=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Type(models.Model):
+    name = models.CharField(max_length=50, primary_key=True)
+
+    def __str__(self):
+        return self.name
+
+class Model(models.Model):
+    name = models.CharField(max_length=50, primary_key=True)
+
+    def __str__(self):
+        return self.name
+
 class Item(models.Model):
     """Stores all information about a single item.
 
@@ -51,9 +69,12 @@ class Item(models.Model):
 
     """
     #static fields
-    itemType = models.CharField(max_length=50)
-    manufacturer = models.CharField(max_length=50)
-    model = models.CharField(max_length=50)
+    #itemType = models.CharField(max_length=50)
+    #manufacturer = models.CharField(max_length=50)
+    #model = models.CharField(max_length=50)
+    itemType = CodeTableField(Type, on_delete='Unknown')#models.ForeignKey('Type', on_delete='Unknown')
+    manufacturer = models.ForeignKey('Manufacturer', on_delete='Unknown')
+    model = models.ForeignKey('Model', on_delete='Unknown')
     created = models.DateTimeField(auto_now_add=True)
     room = models.ForeignKey('Room', null=True, blank=True, on_delete=models.SET_NULL)
     item = models.ForeignKey('self', null=True, related_name="subItem", on_delete=models.SET_NULL)
@@ -90,7 +111,7 @@ class Item(models.Model):
         """
 
         #get old version of document
-	old = Item.objects.filter(pk=self.pk)
+        old = Item.objects.filter(pk=self.pk)
         
         #make sure there is an old copy
         if not len(old) == 0:
@@ -105,15 +126,15 @@ class Item(models.Model):
                 
                 #store old itemType
                 if(old.itemType != self.itemType):
-                    revision.changes['itemType'] = old.itemType
+                    revision.changes['itemType'] = old.itemType.name
 
                 #store old manufacturer
                 if(old.manufacturer != self.manufacturer):
-                    revision.changes['manufacturer'] = old.manufacturer
+                    revision.changes['manufacturer'] = old.manufacturer.name
 
                 #store old model
                 if(old.model != self.model):
-                    revision.changes['model'] = old.model
+                    revision.changes['model'] = old.model.name
 
                 #store old attributes that have been removed or changed
                 for key, value in old.attributes.iteritems():
@@ -166,13 +187,20 @@ class Item(models.Model):
             for key, value in rev.changes.iteritems():
                 #handle static fields
                 if key == 'itemType':
-                    self.itemType = value
+                    self.itemType = Type.objects.get_or_create(name=value)[0]
                 elif key == 'manufacturer':
-                    self.manufacturer = value
+                    self.manufacturer = Manufacturer.objects.get_or_create(name=value)[0]
                 elif key == 'model':
-                    self.model = value
+                    self.model = Model.objects.get_or_create(name=value)[0]
                 elif key == 'room':
-                    self.room = value
+                    if(value is not None):
+                        try:
+                            self.room = Room.objects.get(id=value)
+                        except Room.DoesNotExist:
+                            self.room = None
+                    else:
+                        #set room to None
+                        self.room = value
                 elif key == 'item':
                     if(value is not None):
                         #catch case where item no longer exists

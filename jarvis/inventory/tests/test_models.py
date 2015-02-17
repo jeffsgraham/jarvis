@@ -6,26 +6,33 @@ class ItemTestCase(TestCase):
     def setUp(self):
         self.key = 'ipAddress'
         self.value = '10.221.248.123'
-        Item.objects.create(itemType="Video Scaler", manufacturer="Extron", \
-            model="DVS304", attributes={'serial':"1234Serial", 'sid':"B078989"})
+        scaler = Type.objects.get_or_create(name="Video Scaler")[0]
+        extron = Manufacturer.objects.get_or_create(name="Extron")[0]
+        dvs = Model.objects.get_or_create(name="DVS304")[0]
+        Item.objects.create(itemType=scaler, manufacturer=extron, \
+            model=dvs, attributes={'serial':"1234Serial", 'sid':"B078989"})
 
-        Item.objects.create(itemType="Computer", manufacturer="HP", model="DC8300", \
+        comp = Type.objects.get_or_create(name="Computer")[0]
+        hp = Manufacturer.objects.get_or_create(name="HP")[0]
+        dc8300 = Model.objects.get_or_create(name="DC8300")[0]
+        Item.objects.create(itemType=comp, manufacturer=hp, model=dc8300, \
                 attributes={'serial':"qweqtrt1234", self.key:self.value})
 
     def test_simple_revision(self):
         #retrieve and alter computer item
-        comp1 = Item.objects.get(itemType="Computer")
+        compType = Type.objects.get(name="Computer")
+        comp1 = Item.objects.get(itemType=compType)
         newValue = '10.221.248.231'
         comp1.attributes[self.key]= newValue
         comp1.save_with_revisions()
-        comp2 = Item.objects.get(itemType="Computer")
+        comp2 = Item.objects.get(itemType=compType)
         self.assertNotEqual(comp2.attributes[self.key], self.value, \
                 "Altered item == to previous state")
         
         #revert
         rev = ItemRevision.objects.get(item=comp2)
         comp2.revert(rev)
-        comp3 = Item.objects.get(itemType="Computer")
+        comp3 = Item.objects.get(itemType=compType)
         self.assertEqual(comp3.attributes[self.key], self.value, \
                 "reverted item != previous state")
 
@@ -65,9 +72,9 @@ class ItemTestCase(TestCase):
         #alter item
         altered.item = scaler
         self.assertEqual(altered.item, scaler, "Newly assigned sub-item not equal to itself")
-        altered.itemType = "Switcher"
-        altered.model = "MLS506MA"
-        altered.manufacturer = "Extron"
+        altered.itemType = Type.objects.get_or_create(name="Switcher")[0]
+        altered.model = Model.objects.get_or_create(name="MLS506MA")[0]
+        altered.manufacturer = Manufacturer.objects.get_or_create(name="Extron")[0]
         altered.attributes['serial'] = "MXL1234"
         del altered.attributes[self.key]
         altered.save_with_revisions()
@@ -95,15 +102,15 @@ class ItemTestCase(TestCase):
         altered.save_with_revisions()
         count += 1
         
-        altered.itemType = "Switcher"
+        altered.itemType = Type.objects.get_or_create(name="Switcher")[0]
         altered.save_with_revisions()
         count += 1
         
-        altered.model = "MLS506MA"
+        altered.model = Model.objects.get_or_create(name="MLS506MA")[0]
         altered.save_with_revisions()
         count += 1
         
-        altered.manufacturer = "Extron"
+        altered.manufacturer = Manufacturer.objects.get_or_create(name="Extron")[0]
         altered.save_with_revisions()
         count += 1
         

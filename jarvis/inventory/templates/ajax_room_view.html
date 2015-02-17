@@ -19,9 +19,9 @@
         <tbody>
             {% for item in items %}
             <tr>
-                <td>{{item.itemType}}</td>
-                <td>{{item.manufacturer}}</td>
-                <td>{{item.model}}</td>
+                <td>{{item.itemType_id}}</td>
+                <td>{{item.manufacturer_id}}</td>
+                <td>{{item.model_id}}</td>
                 <td>{{item.age}}</td>
                 <td>
                     <img class="jarv-action-icon" onclick="jarv_item_form('/ajax_edit_item/{{item.id}}');" src="{% static 'img/edit-icon.png' %}" />
