@@ -3,7 +3,12 @@ from django.conf import settings
 from djangotoolbox.fields import EmbeddedModelField, ListField, DictField, SetField
 from copy import copy, deepcopy
 from datetime import datetime
-from fields import CodeTableField
+from inventory.fields import DictFormField
+
+
+class DictModelField(DictField):
+    def formfield(self, **kwargs):
+        return models.Field.formfield(self, DictFormField, **kwargs)
 
 class Building(models.Model):
     """stores relevant information about buildings.
@@ -72,7 +77,7 @@ class Item(models.Model):
     #itemType = models.CharField(max_length=50)
     #manufacturer = models.CharField(max_length=50)
     #model = models.CharField(max_length=50)
-    itemType = CodeTableField(Type, on_delete='Unknown')#models.ForeignKey('Type', on_delete='Unknown')
+    itemType = models.ForeignKey('Type', on_delete='Unknown')
     manufacturer = models.ForeignKey('Manufacturer', on_delete='Unknown')
     model = models.ForeignKey('Model', on_delete='Unknown')
     created = models.DateTimeField(auto_now_add=True)
@@ -81,7 +86,7 @@ class Item(models.Model):
     active = models.BooleanField(default=True)
 
     #dyn fields
-    attributes = DictField()
+    attributes = DictModelField()
 
     #computed fields
     @property

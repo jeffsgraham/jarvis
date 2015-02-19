@@ -107,7 +107,7 @@ class AjaxEditItem(LoginRequiredMixin, FormView):
             
     """
     template_name = 'ajax_edit_item.html'
-    form_class = ItemForm
+    form_class = ItemForm2
     success_url = "/" #unused
 
     def get_context_data(self, **kwargs):
@@ -119,7 +119,8 @@ class AjaxEditItem(LoginRequiredMixin, FormView):
 
     def get_form(self, form_class=None):
         item = get_object_or_404(Item, id=self.args[0])
-        return ItemForm(self.request.POST, instance=item)
+        print(self.request.POST)
+        return form_class(self.request.POST, instance=item)
 
     def form_invalid(self, form):
         return HttpResponse("Invalid Form Data", content_type="text/plain")

@@ -33,10 +33,10 @@ function jarv_get_content(url)
     });
 }
 
-/* attribute_()
+/* jarv_dictfield_setup()
  *  
  */
-function dialog_open()
+function jarv_dictfield_setup()
 {
     var count = $(".jarv-edit-attribute").length;
     var row;
@@ -50,6 +50,31 @@ function dialog_open()
     $(row).append("<td class='jarv-edit-attribute'><table><tr><td><div class='jarv-attribute-add'></div></td></tr></table></td>");
 
 }
+
+//serializes form data for submission
+function jarvis_serialize_item_form(form)
+{
+    var attributes = {};
+    
+    //add attribute key-value pairs to dictionary
+    $('table.jarv-attr-edit-table').each(function(){
+            var key = $(this).find('input.item-attr-key').first().val();
+            var value = $(this).find('input.item-attr-value').first().val();
+            attributes[key] = value;
+    });
+
+    //serialize form data
+    var data = $(form).serializeArray();
+
+    //add attribute dictionary to array
+    data.push({
+        name: 'attributes',
+        value: JSON.stringify(attributes)
+    });
+    return data;
+    
+}
+
 //opens dialog to edit or add an item
 //requires a url to get and post form data from/to
 function jarv_item_form(url)
@@ -78,7 +103,7 @@ function jarv_item_form(url)
                     dialog.dialog("close");
                 }
             },
-            open: dialog_open,
+            open: jarv_dictfield_setup,
             close: function(){
                 //make way for future dialogs by removing closed one.
                 dialog.remove();
@@ -87,7 +112,7 @@ function jarv_item_form(url)
         
         //register form submission handler
         $('#jarv-item-form').submit(function(e) {
-            var postData = $(this).serializeArray();
+            var postData = jarvis_serialize_item_form($(this));//$(this).serializeArray();
             var formURL = $(this).attr("action");
             $.ajax({
                 url: formURL,
