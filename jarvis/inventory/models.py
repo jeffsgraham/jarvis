@@ -86,7 +86,7 @@ class Item(models.Model):
     active = models.BooleanField(default=True)
 
     #dyn fields
-    attributes = DictModelField()
+    attributes = DictModelField(null=True, blank=True)
 
     #computed fields
     @property

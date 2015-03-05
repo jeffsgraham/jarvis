@@ -3,7 +3,8 @@
 <div id="jarv-content-url" class="hidden">{{content_url}}</div>
 
 
-<h2 class="sub-header">{{locationinfo}}  <img class="jarv-action-icon" onclick="jarv_item_form('/ajax_add_item/{{room.id}}');" src="{% static 'img/add-icon.png' %}" />
+<h2 class="sub-header">{{locationinfo}}  <img class="jarv-action-icon" onclick="jarv_item_form2({% if room %}'/inventory/room/{{room.id}}/item/add/'{% else %}'/inventory/item/add/'{% endif %});" src="{% static 'img/add-icon.png' %}" />
+
 </h2>
 <div class="table-responsive">
     <table class="table table-striped">
@@ -24,7 +25,9 @@
                 <td>{{item.model_id}}</td>
                 <td>{{item.age}}</td>
                 <td>
-                    <img class="jarv-action-icon" onclick="jarv_item_form('/ajax_edit_item/{{item.id}}');" src="{% static 'img/edit-icon.png' %}" />
+                    <button type="button" class="btn btn-primary btn-sm" onclick="jarv_item_form2('/inventory/item/{{item.id}}/edit/');">
+                        Edit
+                    </button>
                 </td>
             </tr>
             {% endfor %}

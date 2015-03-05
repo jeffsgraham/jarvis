@@ -4,6 +4,7 @@ from inventory.models import *
 
 class AbstractViewTests():
     base_url = "/"
+    suffix_url = ""
     username = "test"
     password = "password"
     context_keys = []
@@ -47,22 +48,24 @@ class MainListTestCase(AbstractViewGetTests, TestCase):
     context_keys = ['rooms', 'buildings']
 
 class AjaxMainListTextCase(AbstractViewGetTests, TestCase):
-    base_url = "/ajax_main_list/"
+    base_url = "/inventory/item/all/"
     context_keys = ['items', 'locationinfo', 'pagetitle', 'content_url']
 
 
 class AjaxRoomViewTestCase(AbstractViewGetTests, TestCase):
-    base_url = "/ajax_room/"
+    base_url = "/inventory/room/"
+    suffix_url = "/item/all/"
     context_keys = ['room', 'items', 'locationinfo', 'pagetitle', 'content_url']
 
     def setUp(self):
         super(AjaxRoomViewTestCase, self).setUp()
         building = Building.objects.create(name="Alderwood", abbrev="ALD")
         room = Room.objects.create(number="101", building=building)
-        self.base_url += room.id + "/"
+        self.base_url += room.id + self.suffix_url
 
 class AjaxEditItemTestCase(AbstractViewGetTests, TestCase):
-    base_url = "/ajax_edit_item/"
+    base_url = "/inventory/item/"
+    suffix_url = "/edit/"
     context_keys = ['item', 'title', 'submit_url']
     
     def setUp(self):
@@ -71,7 +74,7 @@ class AjaxEditItemTestCase(AbstractViewGetTests, TestCase):
         hpManuf = Manufacturer.objects.get_or_create(name="HP")[0]
         dcModel = Model.objects.get_or_create(name="DC8300")[0]
         item = Item.objects.create(itemType=compType, manufacturer=hpManuf, model=dcModel)
-        self.base_url += item.id + "/"
+        self.base_url += item.id + self.suffix_url
 
 """
     def get_context_data(self, **kwargs):
@@ -93,18 +96,19 @@ class AjaxEditItemTestCase(AbstractViewGetTests, TestCase):
         return HttpResponse("Saved", content_type="text/plain")
 """
 class AjaxAddItemTestCase(AbstractViewGetTests, TestCase):
-    base_url = "/ajax_add_item/"
+    base_url = "/inventory/item/add/"
     context_keys = ['title', 'submit_url']
 
 class AjaxAddItemToRoomTestCase(AbstractViewGetTests, AbstractViewPostTests, TestCase):
-    base_url = "/ajax_add_item/"
+    base_url = "/inventory/room/"
+    suffix_url = "/item/add/"
     context_keys = ['room', 'title', 'submit_url']
 
     def setUp(self):
         super(AjaxAddItemToRoomTestCase, self).setUp()
         building = Building.objects.create(name="Alderwood", abbrev="ALD")
         room = Room.objects.create(number="101", building=building)
-        self.base_url += room.id + "/"
+        self.base_url += room.id + self.suffix_url
 
 """
 class AjaxAddItem(AjaxEditItem):

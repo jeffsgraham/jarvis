@@ -17,7 +17,7 @@
             <ul id="jarv-room-list-{{building.id}}" class="nav nav-sidebar">
                 {% for room in rooms %}
                 {% if room.building_id == building.id %}
-                <li class="jarv-sidebar-room"><a onclick="jarv_get_content('/ajax_room/{{room.pk}}');" href="#">{{room.number}}</a></li>
+                <li class="jarv-sidebar-room"><a onclick="jarv_get_content('/inventory/room/{{room.pk}}/item/all/');" href="#">{{room.number}}</a></li>
                 {% endif %}
                 {% endfor %}
             </ul>

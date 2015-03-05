@@ -1,0 +1,104 @@
+<div class="modal fade" id="item-form-modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content jarv-item-bg">
+            <div class="modal-header jarv-form-title-bg">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ title|default:'Form' }}</h4>
+            </div>
+            <div class="modal-body container-fluid">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-9"><p id="jarv-error-message" class="validateTips"></p></div>
+                </div>
+                
+                <form id="jarv-item-form" action="{{submit_url}}">
+                {% csrf_token %}
+                    <div class="row jarv-show-grid">
+                        <div class="col-xs-8 col-sm-4">
+                            <div class="row">
+                                <div class="col-xs-12">Type</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <input type="text" name="itemType" id="itemType" value="{{item.itemType}}" class="text ui-widget-content ui-corner-all" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-8 col-sm-4">
+                            <div class="row">
+                                <div class="col-xs-12">Manufacturer</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <input type="text" name="manufacturer" id="manufacturer" value="{{item.manufacturer}}" class="text ui-widget-content ui-corner-all" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4">
+                            <div class="row">
+                                <div class="col-xs-12">Model</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <input type="text" name="model" id="model" value="{{item.model}}" class="text ui-widget-content ui-corner-all" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <input type="hidden" name="id" id="id" value="{{item.id}}" />
+                {% if room %}
+                <input type="hidden" name="room" id="room" value="{{room.id}}" />
+                {% elif item.room_id %}
+                <input type="hidden" name="room" id="room" value="{{item.room_id}}" />
+                {% else %}
+                <input type="hidden" name="room" id="room" value="" />
+                {% endif %}
+                </form>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-12">Attributes</div>
+                        </div>
+                        {% for attr, value in item.attributes.items %}
+                        {% if forloop.counter0|divisibleby:3 %}
+                        <div class="row jarv-edit-attribute-row">
+                        {% endif %}
+                            <div class="jarv-edit-attribute col-xs-12 col-md-4">
+                                <div class="row jarv-show-grid">
+                                    <div class="col-xs-12 col-sm-4">
+                                        <input type="text" class="item-attr-key" name="{{attr}}-key" id="{{attr}}-key" value="{{attr}}" class="text ui-widget-content ui-corner-all" />
+                                    </div>
+                                </div>
+                                <div class="row jarv-show-grid">
+                                    <div class="col-xs-12 col-sm-4">
+                                        <input type="text" class="item-attr-value" name="{{attr}}-value" id="{{attr}}-value" value="{{value}}" class="text ui-widget-content ui-corner-all" />
+                                    </div>
+                                </div>
+{% comment %}
+                                <table class="jarv-attr-edit-table">
+                                    <tr>
+                                        <td>
+                                            <input type="text" class="item-attr-key" name="{{attr}}-key" id="{{attr}}-key" value="{{attr}}" class="text ui-widget-content ui-corner-all" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="text" class="item-attr-value" name="{{attr}}-value" id="{{attr}}-value" value="{{value}}" class="text ui-widget-content ui-corner-all" />
+                                        </td>
+                                    </tr>
+                                </table>
+{% endcomment %}
+                            </div>
+                        {% if forloop.counter|divisibleby:3 or forloop.last%}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="item-form-save" class="btn btn-primary">Save changes</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>

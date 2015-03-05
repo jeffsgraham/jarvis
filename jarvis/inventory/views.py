@@ -106,7 +106,7 @@ class AjaxEditItem(LoginRequiredMixin, FormView):
                 errors in parent class methods.
             
     """
-    template_name = 'ajax_edit_item.html'
+    template_name = 'ajax_item_form.html'#'ajax_edit_item.html'
     form_class = ItemForm2
     success_url = "/" #unused
 
@@ -114,12 +114,11 @@ class AjaxEditItem(LoginRequiredMixin, FormView):
         context = super(AjaxEditItem, self).get_context_data(**kwargs)
         context['item'] = get_object_or_404(Item, id=self.args[0])
         context['title'] = "Edit Item Form"
-        context['submit_url'] = "/ajax_edit_item/" + context['item'].id + "/"
+        context['submit_url'] = "/inventory/item/" + context['item'].id + "/edit/"
         return context
 
     def get_form(self, form_class=None):
         item = get_object_or_404(Item, id=self.args[0])
-        print(self.request.POST)
         return form_class(self.request.POST, instance=item)
 
     def form_invalid(self, form):
@@ -136,9 +135,9 @@ class AjaxAddItem(AjaxEditItem):
         context = super(AjaxEditItem, self).get_context_data(**kwargs) #grandparent's method
         if(len(self.args) >= 1): #if room id has been passed
             context['room'] = get_object_or_404(Room, id=self.args[0])
-        room_id = (context['room'].id + "/") if ('room' in context) else ("")
+        room_id = ("room/" + context['room'].id + "/") if ('room' in context) else ("")
         context['title'] = "Add Item Form"
-        context['submit_url'] = "/ajax_add_item/" + room_id
+        context['submit_url'] = "/inventory/" + room_id + "item/add/"
         return context
 
     def get_form(self, form_class=None):

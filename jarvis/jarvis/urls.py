@@ -8,11 +8,11 @@ urlpatterns = patterns('',
     url(r'^$', MainList.as_view()),
 
     #AJAX view urls
-    url(r'^ajax_main_list/$', AjaxMainList.as_view()),
-    url(r'^ajax_room/([\w+]+)/$', AjaxRoomView.as_view()),
-    url(r'^ajax_edit_item/([\w+]+)/$', AjaxEditItem.as_view()),
-    url(r'^ajax_add_item/([\w+]+)/$', AjaxAddItem.as_view()),
-    url(r'^ajax_add_item/$', AjaxAddItem.as_view()),
+    url(r'^inventory/item/all/$', AjaxMainList.as_view()),
+    url(r'^inventory/room/([\w+]+)/item/all/$', AjaxRoomView.as_view()),
+    url(r'^inventory/item/([\w+]+)/edit/$', AjaxEditItem.as_view()),
+    url(r'^inventory/room/([\w+]+)/item/add/$', AjaxAddItem.as_view()),
+    url(r'^inventory/item/add/$', AjaxAddItem.as_view()),
 
     #accounts and administrative urls
     (r'^accounts/login/$', Login.as_view()),#'django.contrib.auth.views.login'),

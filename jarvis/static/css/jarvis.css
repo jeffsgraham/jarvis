@@ -42,8 +42,13 @@
     opacity: .5 !important;
     filter:Alpha(Opacity=100) !important;  
 }
-.jarv-attr-edit-table {
+.jarv-item-bg {
     background-color: #f5f5f5;
+}
+.jarv-form-title-bg {
+    background-color: #222;
+    color: #f5f5f5;
+    border-radius: 5px 5px 0px 0px;
 }
 .jarv-attr-edit-table > tbody > tr > td {
     padding: 8px;
@@ -81,4 +86,7 @@ div.hidden {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+.jarv-show-grid {
+    margin-bottom: 15px;
 }

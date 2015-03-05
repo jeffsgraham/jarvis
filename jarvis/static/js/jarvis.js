@@ -4,7 +4,7 @@ function jarv_load_main_list() {
 	 active: false
   });
     //populate initial list
-    jarv_get_content("/ajax_main_list/");
+    jarv_get_content("/inventory/item/all/");
 
     //highlight and clear nav sidebar list
     $('.jarv-sidebar-nav').click(function(){
@@ -56,8 +56,7 @@ function jarvis_serialize_item_form(form)
 {
     var attributes = {};
     
-    //add attribute key-value pairs to dictionary
-    $('table.jarv-attr-edit-table').each(function(){
+    $('.jarv-edit-attribute').each(function(){
             var key = $(this).find('input.item-attr-key').first().val();
             var value = $(this).find('input.item-attr-value').first().val();
             attributes[key] = value;
@@ -123,6 +122,68 @@ function jarv_item_form(url)
                     {
                         //edit complete, close dialog
                         dialog.dialog("close");
+
+                        //update content frame with new data
+                        //note:every item view contains a hidden content url to be reloaded after changes
+                        jarv_get_content($('#jarv-content-url').text());
+                    }
+                    else
+                    {
+                        //append error data to template
+                        $('#jarv-error-message').empty(data);
+                        $('#jarv-error-message').append(data);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                   document.write(jqXHR.responseText); 
+                }
+            });
+            e.preventDefault(); //prevent default action
+        });
+        
+    });
+}
+
+function jarv_item_form2(url)
+{
+    $.get(url, function(data) {
+        //append dialog to content div
+        $('body').append(data);
+        
+        var dialog = $('#item-form-modal');
+
+        //register dialog hide handler
+        dialog.on('hidden.bs.modal', function(e) {
+            //remove dialog
+            dialog.remove();
+        });
+
+        //register save button handler
+        $('#item-form-save').on('click', function() {
+            $('#jarv-item-form').submit();
+        });
+
+        //launch modal
+        dialog.modal({
+            show: true,
+            backdrop: true,
+            keyboard: true
+        });
+
+
+        //register form submission handler
+        $('#jarv-item-form').submit(function(e) {
+            var postData = jarvis_serialize_item_form($(this));//$(this).serializeArray();
+            var formURL = $(this).attr("action");
+            $.ajax({
+                url: formURL,
+                type: "POST",
+                data: postData,
+                success: function(data, textStatus, jqXHR) {
+                    if(data == "Saved")
+                    {
+                        //edit complete, close dialog
+                        dialog.modal('hide');
 
                         //update content frame with new data
                         //note:every item view contains a hidden content url to be reloaded after changes
