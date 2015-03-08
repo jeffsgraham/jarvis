@@ -13,8 +13,8 @@
     <ul id="jarv-building-list" class="nav nav-sidebar">
         {% for building in buildings %}
         <li class="jarv-sidebar-building">
-            <a href="#" >{{ building.name }}</a>
-            <ul id="jarv-room-list-{{building.id}}" class="nav nav-sidebar">
+            <a href="#" class="jarv-hover-expand">{{ building.name }}</a>
+            <ul id="jarv-room-list-{{building.id}}" class="nav nav-sidebar collapse {% if forloop.first %}in{% endif %}" {% if not forloop.first %}style="height:0px;"{% endif %}>
                 {% for room in rooms %}
                 {% if room.building_id == building.id %}
                 <li class="jarv-sidebar-room"><a onclick="jarv_get_content('/inventory/room/{{room.pk}}/item/all/');" href="#">{{room.number}}</a></li>
@@ -24,6 +24,6 @@
         </li>
         {% endfor %}
     </ul>
-
+    
 </div>
 {% endblock %}

@@ -9,6 +9,12 @@
 }
 
 /* indent sidebar room list text */
+.jarv-sidebar-room > a{
+    padding-left: 4em !important;
+}
+.nav-sidebar {
+    margin-bottom: 0px;
+}
 .ui-accordion .ui-accordion-content > li > a {
     padding-left: 4em !important;
 }

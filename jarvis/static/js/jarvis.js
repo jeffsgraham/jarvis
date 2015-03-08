@@ -1,8 +1,4 @@
 function jarv_load_main_list() {
-  $("#jarv-building-list").accordion({
-	 collapsible: true,
-	 active: false
-  });
     //populate initial list
     jarv_get_content("/inventory/item/all/");
 
@@ -14,8 +10,22 @@ function jarv_load_main_list() {
 
     //highlight and clear building sidebar list
     $('.jarv-sidebar-building').click(function(){
-        $('.jarv-sidebar-building').not(this).removeClass('active jarv-active-grey');
+        $('.jarv-sidebar-building').not(this).each(function(){
+          $(this).removeClass('active jarv-active-grey');
+          $(this).find('.active').removeClass('active');
+        });
         $(this).addClass('active');
+        $(this).children('ul').collapse('toggle');//.slideDown();
+    });
+    //prevent click propagation on sidebar rooms to buildings
+    $('.jarv-sidebar-room').click(function(e){
+        e.stopPropagation();
+    });
+    //register shown event to collapse other room lists
+    $('.jarv-sidebar-building').on('show.bs.collapse', function(){
+        $('.jarv-sidebar-building').not(this).each(function(){
+            $(this).children('.collapse.in').collapse('hide');
+        });
     });
     //highlight and clear room sidebar list
     $('.jarv-sidebar-room').click(function(){
@@ -30,26 +40,33 @@ function jarv_get_content(url)
     $.get(url, function(data){
         $("#jarv-content").empty();
         $("#jarv-content").append(data);
+        
+        //setup draggable
+        $('.jarv-item-row').draggable({
+            revert: "invalid",
+            helper: function(){
+                return $(this).children().first().clone();
+            },
+            cursor: "no-drop",
+            cursorAt: {left:-10,top: 10},
+            zIndex: 1001,
+            refreshPositions: true,
+            containment: "document"
+        });
+
+        //setup droppable
+        $('.jarv-sidebar-room').droppable({
+            tolerance: "pointer",
+            accept: ".jarv-item-row",
+            hoverClass: "jarv-drop-hover",
+            drop: function() {
+                alert("Droppped");
+            }
+        });
     });
-}
-
-/* jarv_dictfield_setup()
- *  
- */
-function jarv_dictfield_setup()
-{
-    var count = $(".jarv-edit-attribute").length;
-    var row;
-    if(count % 3 == 0)
-    {
-        //add new row
-      $("#jarv-edit-body").append("<tr class='jarv-edit-attribute-row'></tr>");
-    }
-    //append to last row
-    row = $(".jarv-edit-attribute-row").last();
-    $(row).append("<td class='jarv-edit-attribute'><table><tr><td><div class='jarv-attribute-add'></div></td></tr></table></td>");
 
 }
+
 
 //serializes form data for submission
 function jarvis_serialize_item_form(form)
