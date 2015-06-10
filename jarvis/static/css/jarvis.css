@@ -23,10 +23,51 @@
     background-color: grey !important;
 }
 
+#jarv-alerts {
+    z-index: 1002;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-right: 30px;
+
+}
+.jarv-superscript {
+    vertical-align: super;
+}
+.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
+    padding: 2px;
+}
+td {
+    vertical-align: inherit !important;
+}
+
+a {
+    cursor: inherit;
+}
+.jarv-drop-hover {
+    background-color: lightblue;
+    cursor: copy !important;
+}
+.jarv-reject-drop {
+    cursor: no-drop;
+}
+.jarv-attach-droppable, .jarv-detach-droppable {
+    width: 100%;
+}
+.jarv-actions-cell {
+    width: 10em;
+}
+
 .jarv-action-icon {
     width: 20px;
     height: 20px;
     cursor: pointer;
+}
+
+.jarv-subitem-row > td:not(.jarv-actions-cell) {
+    padding-left: 1em !important;
 }
 
 .ui-dialog
@@ -70,6 +111,9 @@
     margin-right: auto;
 }
 
+.jarv-draggable-handle {
+    margin-right: 8px
+}
 #jarv-error-message {
     color: red;
 }

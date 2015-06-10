@@ -80,7 +80,7 @@ class AjaxMainList(LoginRequiredMixin, View):
     """AJAX view that lists all active items, used in main page view."""
     def get(self, request, *args):
         items = Item.objects.filter(active=True)
-        locationinfo = "All Items"
+        print(items)
         pagetitle = "Jarvis Home"
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_room_view.html', locals())
@@ -90,8 +90,8 @@ class AjaxRoomView(LoginRequiredMixin, View):
     def get(self, request, *args):
         room = get_object_or_404(Room, id=self.args[0])
         items = room.item_set.filter(active=True)
-        locationinfo = room.building.abbrev + " " + str(room.number)
-        pagetitle = "Room View"
+        pagetitle = room.building.abbrev + " " + str(room.number)
+        
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_room_view.html', locals())
 
@@ -142,3 +142,93 @@ class AjaxAddItem(AjaxEditItem):
 
     def get_form(self, form_class=None):
         return ItemForm(self.request.POST)
+
+class AjaxMoveItem(LoginRequiredMixin, FormView):
+    form_class = MoveItemForm
+    success_url = "/"
+
+    def get_form(self, form_class=None):
+        item = get_object_or_404(Item, id=self.args[0])
+        return form_class(self.request.POST, instance=item)
+
+    def form_invalid(self, form):
+        alert_type = "danger"
+        #build error message
+        item = form.instance
+        itemType = str(item.itemType)
+        room_name = str(item.room)
+        message = "Couldn't move " + itemType + " to " + room_name + ". Invalid Form Data."
+        return render_to_response('ajax_move_item_confirm.html', locals())
+
+    def form_valid(self, form):
+        message = ""
+        item = form.instance
+        item_name = str(item.manufacturer) + " " + str(item.itemType)
+        room_name = str(item.room)
+        if form.has_changed():
+            form.save()
+            #build confirm message
+            alert_type = "success"
+            message = item_name + " moved to " + room_name
+        else:
+            alert_type = "warning"
+            message = item_name + " is already in " + room_name
+        return render_to_response('ajax_move_item_confirm.html', locals())
+
+class AjaxAttachItem(AjaxMoveItem):
+    form_class = AttachItemForm
+    success_url = "/"
+
+    def form_invalid(self, form):
+        alert_type = "danger"
+        #build error message
+        item = form.instance
+        item_name = str(item.manufacturer) + " " + str(item.itemType)
+        parent_item = str(item.item.manufacturer) + " " + str(item.item.itemType)
+        message = "Couldn't attach " + item_name + " to " + parent_item + ". Invalid Form Data."
+        return render_to_response('ajax_move_item_confirm.html', locals())
+
+    def form_valid(self, form):
+        message = ""
+        item = form.instance
+        item_name = str(item.manufacturer) + " " + str(item.itemType)
+        parent_item = str(item.item.manufacturer) + " " + str(item.item.itemType)
+        if form.has_changed():
+            form.save()
+            #build confirm message
+            alert_type = "success"
+            message = item_name + " attached to " + parent_item
+        else:
+            alert_type = "warning"
+            message = item_name + " is already attached to " + parent_item
+        return render_to_response('ajax_move_item_confirm.html', locals())
+
+class AjaxDetachItem(AjaxMoveItem):
+    form_class = AttachItemForm
+    success_url = "/"
+
+    def form_invalid(self, form):
+        alert_type = "danger"
+        #build error message
+        item = form.instance
+        item_name = str(item.manufacturer) + " " + str(item.itemType)
+        parent_item = str(item.item.manufacturer) + " " + str(item.item.itemType)
+        message = "Couldn't detach " + item_name + " from " + parent_item + ". Invalid Form Data."
+        return render_to_response('ajax_move_item_confirm.html', locals())
+
+    def form_valid(self, form):
+        message = ""
+        item = form.instance
+        item_name = str(item.manufacturer) + " " + str(item.itemType)
+        old_item = Item.objects.get(id=item.id)
+        parent_item = Item.objects.get(id=old_item.item.id)
+        parent_name = str(parent_item.manufacturer) + " " + str(parent_item.itemType)
+        if form.has_changed():
+            form.save()
+            #build confirm message
+            alert_type = "success"
+            message = item_name + " detached from " + parent_name
+        else:
+            alert_type = "warning"
+            message = item_name + " was not already attached to " + parent_name
+        return render_to_response('ajax_move_item_confirm.html', locals())

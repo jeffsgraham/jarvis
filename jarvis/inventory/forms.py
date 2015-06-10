@@ -39,3 +39,20 @@ class ItemForm2(ModelForm):
             'manufacturer': TextInput(),
             'model': TextInput(),
         }
+
+class MoveItemForm(ModelForm):
+    class Meta:
+        model = Item
+        fields = ('room','item')
+
+
+class AttachItemForm(ModelForm):
+    class Meta:
+        model = Item
+        fields = ('item',)
+
+
+class DetachItemForm(ModelForm):
+    class Meta:
+        model = Item
+        fields = ('item',)

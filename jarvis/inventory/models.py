@@ -36,7 +36,7 @@ class Room(models.Model):
     building = models.ForeignKey('Building')
 
     def __str__(self):
-        return self.number
+        return self.building.abbrev + " " + self.number
 
 class Manufacturer(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
@@ -73,22 +73,19 @@ class Item(models.Model):
         attributes (DictField): Item attributes i.e. {Serial: 1234, IP: 1.2.3.4}
 
     """
-    #static fields
-    #itemType = models.CharField(max_length=50)
-    #manufacturer = models.CharField(max_length=50)
-    #model = models.CharField(max_length=50)
+    #Static Fields
     itemType = models.ForeignKey('Type', on_delete='Unknown')
     manufacturer = models.ForeignKey('Manufacturer', on_delete='Unknown')
     model = models.ForeignKey('Model', on_delete='Unknown')
     created = models.DateTimeField(auto_now_add=True)
     room = models.ForeignKey('Room', null=True, blank=True, on_delete=models.SET_NULL)
-    item = models.ForeignKey('self', null=True, related_name="subItem", on_delete=models.SET_NULL)
+    item = models.ForeignKey('self', null=True, blank=True, related_name="subItem", on_delete=models.SET_NULL)
     active = models.BooleanField(default=True)
 
-    #dyn fields
+    #Dynamic Fields
     attributes = DictModelField(null=True, blank=True)
 
-    #computed fields
+    #Computed Fields
     @property
     def age(self):
         """Compute approximate age in months and years
@@ -254,7 +251,7 @@ class Item(models.Model):
             return False
 
     def __str__(self):
-        return str(self.itemType) + " " + str(self.manufacturer) + " " + str(self.model)
+        return str(self.manufacturer) + " " + str(self.itemType)
 
 class ItemRevision(models.Model):
     """Each instance represents changes to a single item at a given time.
