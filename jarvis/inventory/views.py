@@ -141,7 +141,7 @@ class AjaxAddItem(AjaxEditItem):
         return context
 
     def get_form(self, form_class=None):
-        return ItemForm(self.request.POST)
+        return form_class(self.request.POST)
 
 class AjaxMoveItem(LoginRequiredMixin, FormView):
     form_class = MoveItemForm
