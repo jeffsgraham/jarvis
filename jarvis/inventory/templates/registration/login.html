@@ -43,6 +43,12 @@
         open: function(event, ui) {
             //hide close button
             $(".ui-dialog-titlebar-close").hide();
+            //make login the default button
+            $("#login-dialog").keypress(function(e) {
+                if(e.keyCode == $.ui.keyCode.ENTER) {
+                    $(this).parent().find('.ui-dialog-buttonpane button:first').click();
+                }
+            });
         }
     });
     dialog.dialog("open");
