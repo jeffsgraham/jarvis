@@ -37,6 +37,25 @@ function jarv_load_main_list() {
         $(this).parents('.jarv-sidebar-building').addClass('jarv-active-grey');
         $(this).addClass('active');
     });
+
+
+    //setup hover expand for xs screen sidebar
+    $('.sidebar-show').droppable({
+        tolerance: "intersect",
+        hoverClass: "jarv-reject-drop",
+        over: function(){
+            $(this).click();
+        },
+        accept: function() {
+            //prevents building from accepting drop without removing the
+            // hover-expand functionality. Thus preserving the "revert"
+            // feature when the item is dropped into a building.
+            if($(this).next().hasClass("in")){
+                return false;
+            }
+            return true;
+        }
+    });
 }
 
 //helper function to get cookie values.
@@ -84,6 +103,9 @@ function jarv_get_content(url)
         $("#jarv-content").empty();
         $("#jarv-content").append(data);
         
+        //hide sidebar if necessary (xs screen only)
+        $('.jarv-sidebar-visible').removeClass('jarv-sidebar-visible');
+
         //setup draggable
         $('.jarv-item-row').draggable({
             revert: "invalid",
