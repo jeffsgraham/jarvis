@@ -26,7 +26,7 @@
     {% block navbar %}{% include "navbar.html" %}{% endblock %}
 	
 	
-    <div class="container-fluid jarv-wide-container">
+    <div id="jarv-page" class="container-fluid jarv-wide-container">
       <div class="row">
 		{% block sidebar %}{% include "sidebar.html" %}{% endblock %}
         
@@ -45,6 +45,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	 <script src="{% static 'bootstrap-3.2.0-dist/js/bootstrap.min.js' %}"></script>
 	 <script src="{% static 'jquery-ui-1.11.2.custom/jquery-ui.min.js' %}"></script>
+	 <script src="{% static 'jquery.ui.touch-punch.min.js' %}"></script>
 	 <script src="{% static 'js/jarvis.js' %}"></script>
 
 	{% block javascript %}
@@ -55,5 +56,6 @@
 	</script>
     {% endblock %}
     <div id="jarv-alerts"></div>
+    <div class="text-center" id="jarv-attributions">This site uses <a href="http://touchpunch.furf.com/">jQuery UI Touch Punch</a></div>
   </body>
 </html>

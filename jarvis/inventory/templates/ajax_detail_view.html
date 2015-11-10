@@ -1,0 +1,51 @@
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Equipment Type</h3>
+  </div>
+  <div class="panel-body">
+    {{item.itemType_id}}
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Manufacturer</h3>
+  </div>
+  <div class="panel-body">
+    {{item.manufacturer_id}}
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Model</h3>
+  </div>
+  <div class="panel-body">
+    {{item.model_id}}
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Age</h3>
+  </div>
+  <div class="panel-body">
+    {{item.age}}
+  </div>
+</div>
+{% if item.attributes %}
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Attributes</h3>
+  </div>
+  <div class="panel-body">
+    <table class="table table-striped">
+      <thead>
+        <tr><th>Attribute</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+      {% for attr, value in item.attributes.items %}
+        <tr><td>{{attr}}</td><td>{{value}}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}

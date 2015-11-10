@@ -265,3 +265,9 @@ div.hidden {
 #jarv-close-detail:hover {
     border: 1px solid #eee;
 }
+#jarv-attributions {
+    opacity: .5;
+    align: center;
+}
+html, body, #jarv-page { height: 100%; }
+body > #jarv-page { height: auto; min-height: 95%; }

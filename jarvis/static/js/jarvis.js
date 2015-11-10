@@ -65,6 +65,9 @@ function jarv_load_main_list() {
             jarv_close_details();
         }
     });
+
+    //temp testing touch drag events
+    init();
 }
 
 //helper function to get cookie values.
@@ -397,3 +400,5 @@ function jarv_close_details()
     var paneWidth = $('#jarv-detail-pane').outerWidth();
     $('#jarv-detail-pane').animate({"right":"-" + paneWidth + "px"}, "fast");
 }
+
+
