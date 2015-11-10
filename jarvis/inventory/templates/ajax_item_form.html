@@ -13,23 +13,54 @@
                 <form id="jarv-item-form" action="{{submit_url}}">
                 {% csrf_token %}
                     <div class="row jarv-show-grid">
-                        <div class="col-xs-8 col-sm-4">
+                        <div class="col-xs-12 col-sm-4">
                             <div class="row">
                                 <div class="col-xs-12">Type</div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <input type="text" name="itemType" id="itemType" value="{{item.itemType}}" class="text ui-widget-content ui-corner-all" />
+                                    <!--<input type="text" name="itemType" id="itemType" value="{{item.itemType}}" class="text ui-widget-content ui-corner-all" />-->
+                                  {% if user.is_superuser %}
+                                    <div class="input-group">
+                                  {% endif %}
+                                      <select class="text form-control" id="itemType" name="itemType" selectedIndex=-1>
+                                        <option selected disabled hidden value=''></option>
+                                        {% for type in itemTypes %}  
+                                          <option {% if type == item.itemType %}selected="selected"{% endif %}>{{type}}</option>
+                                        {% endfor %}
+                                      </select>
+                                  {% if user.is_superuser %}
+                                      <span class="input-group-btn">
+                                        <a target="_blank" href="/admin/inventory/type/add/" class="btn btn-success btn-sm btn-circle" type="button" id="addType"><span class="glyphicon glyphicon-plus"></span></a>
+                                      </span>
+                                    </div>
+                                  {% endif %}
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-8 col-sm-4">
+                        <div class="col-xs-12 col-sm-4">
                             <div class="row">
                                 <div class="col-xs-12">Manufacturer</div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <input type="text" name="manufacturer" id="manufacturer" value="{{item.manufacturer}}" class="text ui-widget-content ui-corner-all" />
+                                    <!--<input type="text" name="manufacturer" id="manufacturer" value="{{item.manufacturer}}" class="text ui-widget-content ui-corner-all" />-->
+                                  {% if user.is_superuser %}
+                                    <div class="input-group">
+                                  {% endif %}
+                                    <select class="text form-control" id="manufacturer" name="manufacturer">
+                                        <option selected disabled hidden value=''></option>
+                                      {% for manufacturer in manufacturers %}  
+                                        <option {% if manufacturer == item.manufacturer %}selected="selected"{% endif %}>{{manufacturer}}</option>
+                                      {% endfor %}
+                                    </select>
+                                  {% if user.is_superuser %}
+                                      <span class="input-group-btn">
+                                        <a target="_blank" href="/admin/inventory/manufacturer/add/" class="btn btn-success btn-sm btn-circle" type="button" id="addManufacturer"><span class="glyphicon glyphicon-plus"></span></a>
+                                      </span>
+                                    </div>
+                                  {% endif %}
+
                                 </div>
                             </div>
                         </div>
@@ -39,7 +70,23 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <input type="text" name="model" id="model" value="{{item.model}}" class="text ui-widget-content ui-corner-all" />
+                                    <!--<input type="text" name="model" id="model" value="{{item.model}}" class="text ui-widget-content ui-corner-all" />-->
+                                  {% if user.is_superuser %}
+                                    <div class="input-group">
+                                  {% endif %}
+                                    <select class="text form-control" id="model" name="model">
+                                        <option selected disabled hidden value=''></option>
+                                      {% for model in models %}  
+                                        <option {% if model == item.model %}selected="selected"{% endif %}>{{model}}</option>
+                                      {% endfor %}
+                                    </select>
+                                  {% if user.is_superuser %}
+                                      <span class="input-group-btn">
+                                        <a target="_blank" href="/admin/inventory/model/add/" class="btn btn-success btn-sm btn-circle" type="button" id="addModel"><span class="glyphicon glyphicon-plus"></span></a>
+                                      </span>
+                                    </div>
+                                  {% endif %}
+
                                 </div>
                             </div>
                         </div>

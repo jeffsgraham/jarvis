@@ -118,6 +118,10 @@ class AjaxEditItem(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(AjaxEditItem, self).get_context_data(**kwargs)
+        context['itemTypes'] = Type.objects.all()
+        context['manufacturers'] = Manufacturer.objects.all()
+        context['models'] = Model.objects.all()
+
         context['item'] = get_object_or_404(Item, id=self.args[0])
         context['title'] = "Edit Item Form"
         context['submit_url'] = "/inventory/item/" + context['item'].id + "/edit/"
@@ -139,6 +143,11 @@ class AjaxAddItem(AjaxEditItem):
 
     def get_context_data(self, **kwargs):
         context = super(AjaxEditItem, self).get_context_data(**kwargs) #grandparent's method
+
+        context['itemTypes'] = Type.objects.all()
+        context['manufacturers'] = Manufacturer.objects.all()
+        context['models'] = Model.objects.all()
+
         if(len(self.args) >= 1): #if room id has been passed
             context['room'] = get_object_or_404(Room, id=self.args[0])
         room_id = ("room/" + context['room'].id + "/") if ('room' in context) else ("")

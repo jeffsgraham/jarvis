@@ -24,13 +24,6 @@ class ItemForm(ModelForm):
 
 
 class ItemForm2(ModelForm):
-
-    def is_valid(self):
-        Type.objects.get_or_create(name=self.data['itemType'])
-        Manufacturer.objects.get_or_create(name=self.data['manufacturer'])
-        Model.objects.get_or_create(name=self.data['model'])
-        return super(ItemForm2, self).is_valid()
-
     class Meta:
         model = Item
         exclude = ('active', 'created', 'item')
