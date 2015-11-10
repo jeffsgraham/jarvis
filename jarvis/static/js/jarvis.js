@@ -56,6 +56,15 @@ function jarv_load_main_list() {
             return true;
         }
     });
+
+    //close detail pane if click registered outside pane
+    //note if more elements need this functionality, add more if statements for each
+    $(document).on('click', function(event) {
+        if(!$(event.target).closest('#jarv-detail-pane').length)
+        {
+            jarv_close_details();
+        }
+    });
 }
 
 //helper function to get cookie values.
@@ -105,6 +114,17 @@ function jarv_get_content(url)
         
         //hide sidebar if necessary (xs screen only)
         $('.jarv-sidebar-visible').removeClass('jarv-sidebar-visible');
+
+        //setup dropdown buttons
+        $('.jarv-dropdown-overflow').click(function (){
+            var dropdowntop = $(this).offset().top + $(this).outerHeight();
+            var dropdownleft = $(this).prev().offset().left;
+            $(this).next().css({
+                'top': dropdowntop + "px",
+                'left': dropdownleft + "px"
+            });
+        });
+
 
         //setup draggable
         $('.jarv-item-row').draggable({
@@ -358,4 +378,21 @@ function jarv_item_form2(url)
         });
         
     });
+}
+
+//opens details pane for selected item.
+//requires url to get data from
+function jarv_show_details(url) 
+{
+    $.get(url, function(data) {
+        $('#jarv-detail-content').html(data);
+        $('#jarv-detail-pane').animate({"right":"0px"}, "fast");
+    });
+}
+
+//close details pane
+function jarv_close_details()
+{
+    var paneWidth = $('#jarv-detail-pane').outerWidth();
+    $('#jarv-detail-pane').animate({"right":"-" + paneWidth + "px"}, "fast");
 }

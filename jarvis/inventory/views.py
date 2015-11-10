@@ -80,10 +80,16 @@ class AjaxMainList(LoginRequiredMixin, View):
     """AJAX view that lists all active items, used in main page view."""
     def get(self, request, *args):
         items = Item.objects.filter(active=True)
-        print(items)
         pagetitle = "Jarvis Home"
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_room_view.html', locals())
+
+class AjaxItemDetail(LoginRequiredMixin, View):
+    """AJAX view that shows item details."""
+    def get(self, request, *args):
+        item = get_object_or_404(Item, id=self.args[0])
+        content_url = request.META['PATH_INFO']
+        return render_to_response('ajax_detail_view.html', locals())
 
 class AjaxRoomView(LoginRequiredMixin, View):
     """AJAX View for room info requests. Lists all items in requested room."""

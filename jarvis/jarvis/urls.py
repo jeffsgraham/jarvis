@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     #AJAX view urls
     url(r'^inventory/item/all/$', AjaxMainList.as_view()),
     url(r'^inventory/room/([\w+]+)/item/all/$', AjaxRoomView.as_view()),
+    url(r'^inventory/item/([\w+]+)/details/$', AjaxItemDetail.as_view()),
     url(r'^inventory/item/([\w+]+)/edit/$', AjaxEditItem.as_view()),
     url(r'^inventory/item/([\w+]+)/move/$', AjaxMoveItem.as_view()),
     url(r'^inventory/item/([\w+]+)/attach/$', AjaxAttachItem.as_view()),

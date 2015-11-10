@@ -45,7 +45,7 @@ td {
 #jarv-content div.table-responsive>table.table-striped td {
     overflow-x: hidden;
 }
-.container-fluid {
+.jarv-wide-container {
     padding-right: 0px;
     padding-left: 0px;
 }
@@ -176,7 +176,7 @@ div.hidden {
     position: fixed;
     top: auto;
     left: 0;
-    z-index: 2000;
+    z-index: 1001;
     display: block;
     overflow-x: hidden;
     overflow-y: hidden; /* Scrollable contents if viewport is shorter than content. */
@@ -226,4 +226,30 @@ div.hidden {
     background-color: #f5f5f5;
     border-right: 1px solid #eee;
   }
+}
+
+.jarv-dropdown-menu {
+  position: fixed;
+}
+.jarv-split-button {
+  width: 75px;
+}
+
+.jarv-detail-pane {
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    right: -1000px;
+    z-index: 500;
+    display: block;
+    padding: 10px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    background-color: #f5f5f5;
+    border-left: 1px solid #eee;
+
+}
+#jarv-close-detail {
+    margin-bottom: 10px;
+    margin-right: 15px;
 }
