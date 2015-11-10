@@ -100,8 +100,12 @@ class Item(models.Model):
         #don't clutter output with 0 years
         if years > 0:
             return str(years) + "yrs, " + str(months) + "mo"
-        else:
+        elif months > 1:
             return str(months) + "months"
+        elif months == 1:
+            return "1month"
+        else:
+            return "new"
 
 
     def save_with_revisions(self, currentUser=None):
