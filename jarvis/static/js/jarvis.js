@@ -386,6 +386,7 @@ function jarv_show_details(url)
 {
     $.get(url, function(data) {
         $('#jarv-detail-content').html(data);
+        $('#jarv-detail-pane').scrollTop(0); //scroll to top of pane
         $('#jarv-detail-pane').animate({"right":"0px"}, "fast");
     });
 }
