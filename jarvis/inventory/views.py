@@ -73,7 +73,7 @@ class MainList(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(MainList, self).get_context_data(**kwargs)
         context['buildings'] = Building.objects.all()
-        context['rooms'] = Room.objects.all()
+        context['rooms'] = Room.objects.all().order_by('number')
         return context
 
 class AjaxMainList(LoginRequiredMixin, View):
