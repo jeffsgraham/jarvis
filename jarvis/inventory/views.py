@@ -101,6 +101,11 @@ class AjaxRoomView(LoginRequiredMixin, View):
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_room_view.html', locals())
 
+class AjaxAttributeAdd(LoginRequiredMixin, View):
+    """AJAX View for item attribute suggestions form."""
+    def get(self, request, *args):
+        attrSuggestions = Attribute.objects.all().order_by("name")
+        return render_to_response('ajax_item_attribute_form.html', locals())
 
 class AjaxEditItem(LoginRequiredMixin, FormView):
     """AJAX view used to show an edit item dialog.
@@ -121,6 +126,7 @@ class AjaxEditItem(LoginRequiredMixin, FormView):
         context['itemTypes'] = Type.objects.all()
         context['manufacturers'] = Manufacturer.objects.all()
         context['models'] = Model.objects.all()
+        context['attrSuggestions'] = Attribute.objects.all().order_by("name")
 
         context['item'] = get_object_or_404(Item, id=self.args[0])
         context['title'] = "Edit Item Form"

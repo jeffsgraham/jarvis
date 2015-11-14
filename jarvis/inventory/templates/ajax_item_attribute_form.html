@@ -1,0 +1,18 @@
+
+<div class="jarv-edit-attribute col-xs-6 col-sm-4 jarv-show-grid">
+    <div class="row jarv-show-grid">
+        <div class="col-xs-12">
+            <!--<input type="text" class="item-attr-key" name="{{attr}}-key" id="{{attr}}-key" value="{{attr}}" class="text ui-widget-content ui-corner-all" />-->
+        <select class="item-attr-key text form-control" id="{{attr}}-key" name="{{attr}}-key">
+          {% for attribute in attrSuggestions %}  
+            <option {% if attribute.name == attr %}selected="selected"{% endif %}>{{attribute}}</option>
+          {% endfor %}
+        </select>
+        </div>
+    </div>
+    <div class="row jarv-show-grid">
+        <div class="col-xs-12">
+            <input type="text" class="form-control item-attr-value" name="{{attr}}-value" id="{{attr}}-value" value="{{value}}" class="text ui-widget-content ui-corner-all" />
+        </div>
+    </div>
+</div>

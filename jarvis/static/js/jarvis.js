@@ -65,9 +65,6 @@ function jarv_load_main_list() {
             jarv_close_details();
         }
     });
-
-    //temp testing touch drag events
-    init();
 }
 
 //helper function to get cookie values.
@@ -297,7 +294,7 @@ function jarvis_serialize_item_form(form)
     var attributes = {};
     
     $('.jarv-edit-attribute').each(function(){
-            var key = $(this).find('input.item-attr-key').first().val();
+            var key = $(this).find('select.item-attr-key').first().val();
             var value = $(this).find('input.item-attr-value').first().val();
             attributes[key] = value;
     });
@@ -344,8 +341,9 @@ function jarv_item_form2(url)
 
         //register add_attribute button action
         $('#jarv-add-attribute').on('click', function(){
-            var form_fields = '<div class="jarv-edit-attribute col-xs-6 col-sm-4 jarv-show-grid"><div class="row jarv-show-grid"><div class="col-xs-12"><input type="text" class="item-attr-key" name="attr-key" id="attr-key" class="text ui-widget-content ui-corner-all" /></div></div><div class="row jarv-show-grid"><div class="col-xs-12"><input type="text" class="item-attr-value" name="attr-value" id="attr-value" class="text ui-widget-content ui-corner-all" /></div></div></div>';
-            $('#jarv-add-attr-cell').before(form_fields);
+            $.get("inventory/item/attribute/add/", function(data) {
+              $('#jarv-add-attr-cell').before(data);
+            });
         });
 
         //register form submission handler

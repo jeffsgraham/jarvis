@@ -51,6 +51,15 @@ class Type(models.Model):
     def __str__(self):
         return self.name
 
+class Attribute(models.Model):
+    """Stores Attribute Key suggestions for items.
+    
+    """
+    name = models.CharField(max_length=50, primary_key=True)
+
+    def __str__(self):
+        return self.name
+
 class Model(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
 

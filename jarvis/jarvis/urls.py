@@ -17,6 +17,8 @@ urlpatterns = patterns('',
     url(r'^inventory/item/([\w+]+)/detach/$', AjaxDetachItem.as_view()),
     url(r'^inventory/room/([\w+]+)/item/add/$', AjaxAddItem.as_view()),
     url(r'^inventory/item/add/$', AjaxAddItem.as_view()),
+    url(r'^inventory/item/attribute/add/$', AjaxAttributeAdd.as_view()),
+
 
     #accounts and administrative urls
     (r'^accounts/login/$', Login.as_view()),#'django.contrib.auth.views.login'),

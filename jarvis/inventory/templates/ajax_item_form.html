@@ -107,18 +107,7 @@
                         </div>
                         <div id="jarv-edit-attribute-row" class="row jarv-edit-attribute-row">
                         {% for attr, value in item.attributes.items %}
-                            <div class="jarv-edit-attribute col-xs-6 col-sm-4 jarv-show-grid">
-                                <div class="row jarv-show-grid">
-                                    <div class="col-xs-12">
-                                        <input type="text" class="item-attr-key" name="{{attr}}-key" id="{{attr}}-key" value="{{attr}}" class="text ui-widget-content ui-corner-all" />
-                                    </div>
-                                </div>
-                                <div class="row jarv-show-grid">
-                                    <div class="col-xs-12">
-                                        <input type="text" class="item-attr-value" name="{{attr}}-value" id="{{attr}}-value" value="{{value}}" class="text ui-widget-content ui-corner-all" />
-                                    </div>
-                                </div>
-                            </div>
+                          {% include 'ajax_item_attribute_form.html' %}
                         {% endfor %}
                             <div id="jarv-add-attr-cell" class="jarv-edit-attribute col-xs-6 col-sm-4 jarv-show-grid" style="vertical-align:middle;display:table-cell;">
                               <p class="text-center"><button type="button" id="jarv-add-attribute" class="btn btn-primary btn-sm">Add Attribute</button></p>
