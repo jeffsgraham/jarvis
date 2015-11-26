@@ -106,8 +106,17 @@ function jarv_ajax_error(jqXHR, textStatus, errorThrown, message)
     });
 }
 
-function jarv_get_content(url)
+function jarv_get_content(url, placeholder)
 {
+    //insert placeholder element(s) while waiting on long running content
+    if(placeholder) {
+        $("#jarv-content").empty();
+        $('#jarv-content').append("<h1 class='page-header'>" + placeholder + "</h1><img class='img-responsive center-block' src='/static/img/ajax-loader.gif' />" );
+
+        
+    }
+
+    //ajax request for content
     $.get(url, function(data){
         $("#jarv-content").empty();
         $("#jarv-content").append(data);

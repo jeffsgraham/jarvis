@@ -18,6 +18,8 @@ urlpatterns = patterns('',
     url(r'^inventory/room/([\w+]+)/item/add/$', AjaxAddItem.as_view()),
     url(r'^inventory/item/add/$', AjaxAddItem.as_view()),
     url(r'^inventory/item/attribute/add/$', AjaxAttributeAdd.as_view()),
+    url(r'^inventory/iprange/all/$', AjaxIPRangeList.as_view()),
+    url(r'^inventory/iprange/([\w+]+)/sweep/$', AjaxIPSweep.as_view()),
 
 
     #accounts and administrative urls

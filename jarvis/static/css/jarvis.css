@@ -232,7 +232,7 @@ div.hidden {
   position: fixed;
 }
 .jarv-split-button {
-  width: 75px;
+  width: 100%;
 }
 
 .jarv-detail-pane {
@@ -271,3 +271,4 @@ div.hidden {
 }
 html, body, #jarv-page { height: 100%; }
 body > #jarv-page { height: auto; min-height: 95%; }
+

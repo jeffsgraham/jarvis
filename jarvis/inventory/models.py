@@ -4,6 +4,9 @@ from djangotoolbox.fields import EmbeddedModelField, ListField, DictField, SetFi
 from copy import copy, deepcopy
 from datetime import datetime
 from inventory.fields import DictFormField
+from netaddr import *
+from django_mongodb_engine.contrib import MongoDBManager
+import os
 
 
 class DictModelField(DictField):
@@ -37,6 +40,43 @@ class Room(models.Model):
 
     def __str__(self):
         return self.building.abbrev + " " + self.number
+
+class IPRange(models.Model):
+    base = models.GenericIPAddressField(protocol='IPv4')
+    mask = models.IntegerField()
+    building = models.ForeignKey('Building', blank=True, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        ipstring = str(self.base) + "/" + str(self.mask)
+        if self.building:
+            ipstring += " in " + str(self.building)
+        return ipstring
+
+    def sweep(self):
+        net = IPNetwork(self.base + "/" + str(self.mask))
+        results = {}
+        for ip in net:
+            #ping ip address
+            found = False
+            resp = os.system("ping -c 1 -w 1 " + str(ip))
+            if resp == 0:
+                found = True
+
+            #check database for item
+            items = Item.objects.raw_query({'attributes.IP Address': str(ip)})
+            if items.exists() == 1:
+                #one item found, check against current data
+                results[ip] = [items[0], found]
+            elif items.exists() > 1:
+                #two or more items found. Possible IP conflict raise warning
+                #TODO raise warning
+                results[ip] = [items, found]
+            else:
+                #no match found
+                results[ip] = [None, found]
+
+        return results
+
 
 class Manufacturer(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
@@ -93,6 +133,11 @@ class Item(models.Model):
 
     #Dynamic Fields
     attributes = DictModelField(null=True, blank=True)
+
+    #override objects manager with mongo specific manager
+    #allows raw queries to mongodb
+    #this breaks compatibility with other databases
+    objects = MongoDBManager()
 
     #Computed Fields
     @property

@@ -84,6 +84,23 @@ class AjaxMainList(LoginRequiredMixin, View):
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_room_view.html', locals())
 
+class AjaxIPRangeList(LoginRequiredMixin, View):
+    """AJAX view that lists saved IPRanges."""
+    def get(self, request, *args):
+        ranges = IPRange.objects.all()
+        pagetitle = "IP Ranges"
+        content_url = request.META['PATH_INFO']
+        return render_to_response('ajax_iprange_view.html', locals())
+
+class AjaxIPSweep(LoginRequiredMixin, View):
+    """AJAX view that lists results of IPRange sweep."""
+    def get(self, request, *args):
+        iprange = get_object_or_404(IPRange, id=self.args[0])
+        results = iprange.sweep()
+        pagetitle = "IP Sweep Results for " + str(iprange)
+        content_url = request.META['PATH_INFO']
+        return render_to_response('ajax_ipsweep_view.html', locals())
+
 class AjaxItemDetail(LoginRequiredMixin, View):
     """AJAX view that shows item details."""
     def get(self, request, *args):
