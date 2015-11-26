@@ -322,13 +322,14 @@ function jarvis_serialize_item_form(form)
 
 //opens dialog to edit or add an item
 //requires a url to get and post form data from/to
-function jarv_item_form2(url)
+function jarv_item_form2(url, initial_data)
 {
     $.get(url, function(data) {
         //append dialog to content div
         $('body').append(data);
         
         var dialog = $('#item-form-modal');
+
 
         //register dialog hide handler
         dialog.on('hidden.bs.modal', function(e) {
@@ -354,6 +355,27 @@ function jarv_item_form2(url)
               $('#jarv-add-attr-cell').before(data);
             });
         });
+        
+        //set initial item data if any
+        if(initial_data) {
+            if(initial_data.itemType){
+                $(dialog).find('select#itemType').val(initial_data.itemType);
+            }
+            if(initial_data.model){
+                $(dialog).find('select#model').val(initial_data.model);
+            }
+            if(initial_data.manufacturer){
+                $(dialog).find('select#manufacturer').val(initial_data.manufacturer);
+            }
+            $.each(initial_data.attributes, function(key, value){
+                $.get("inventory/item/attribute/add/", function(data) {
+                    $('#jarv-add-attr-cell').before(data);
+                    $('.jarv-edit-attribute:last').find('select.item-attr-key').val(key)
+                    $('.jarv-edit-attribute:last').find('input.item-attr-value').val(value)
+                });
+
+            });
+        }
 
         //register form submission handler
         $('#jarv-item-form').submit(function(e) {

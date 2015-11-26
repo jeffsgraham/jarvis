@@ -7,6 +7,7 @@ from inventory.fields import DictFormField
 from netaddr import *
 from django_mongodb_engine.contrib import MongoDBManager
 import os
+from collections import OrderedDict
 
 
 class DictModelField(DictField):
@@ -54,7 +55,7 @@ class IPRange(models.Model):
 
     def sweep(self):
         net = IPNetwork(self.base + "/" + str(self.mask))
-        results = {}
+        results = OrderedDict()
         for ip in net:
             #ping ip address
             found = False
