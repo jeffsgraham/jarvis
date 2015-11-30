@@ -18,24 +18,24 @@
         <tbody>
             {% for ip, result in results.items %}
             <tr>
-                <td>{% if result|last %}<span class="text-success glyphicon glyphicon-ok" aria-hidden="true"></span>{% else %}<span class="text-danger glyphicon glyphicon-remove" aria-hidden="true"></span>{% endif %}</td>
-                <td>{% if result.0 %}{{result.0}}{% endif %}</td>
+                <td>{% if result.ping %}<span class="text-success glyphicon glyphicon-ok" aria-hidden="true"></span>{% else %}<span class="text-danger glyphicon glyphicon-remove" aria-hidden="true"></span>{% endif %}</td>
+                <td>{% if result.items %}{{result.items}}{% endif %}</td>
                 <td>{{ip}}</td>
                 <td class="jarv-actions-cell">
                     <!-- Split button -->
                     <div class="btn-group jarv-split-button">
-                        {% if result.0 %}
-                        <button type="button" class="btn btn-primary btn-xs" onclick="jarv_show_details('/inventory/item/{{result.0.id}}/details/')">Details</button>
+                        {% if result.items %}
+                        <button type="button" class="btn btn-primary btn-xs" onclick="jarv_show_details('/inventory/item/{{result.items.id}}/details/')">Details</button>
                         {% else %}
                         <button type="button" class="btn btn-primary btn-xs" onclick="jarv_item_form2('/inventory/item/add/', {'attributes':{'IP Address':'{{ip}}'}});">Add New</button>
                         {% endif %}
-                        {% if result|last %}
+                        {% if result.web_path %}
                         <button type="button" class="btn btn-primary btn-xs jarv-dropdown-overflow dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu jarv-dropdown-menu">
-                            <li><a href="http://{{ip}}" target="_blank">Open Web Page</a></li>
+                            <li><a href="http://{{ip}}{{result.web_path}}" target="_blank">Open Web Page</a></li>
                         </ul>
                         {% endif %}
                     </div>

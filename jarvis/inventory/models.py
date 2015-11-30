@@ -4,10 +4,9 @@ from djangotoolbox.fields import EmbeddedModelField, ListField, DictField, SetFi
 from copy import copy, deepcopy
 from datetime import datetime
 from inventory.fields import DictFormField
-from netaddr import *
 from django_mongodb_engine.contrib import MongoDBManager
-import os
 from collections import OrderedDict
+from jarvis_utilities import JarvisIPUtilities
 
 
 class DictModelField(DictField):
@@ -54,27 +53,20 @@ class IPRange(models.Model):
         return ipstring
 
     def sweep(self):
-        net = IPNetwork(self.base + "/" + str(self.mask))
-        results = OrderedDict()
-        for ip in net:
-            #ping ip address
-            found = False
-            resp = os.system("ping -c 1 -w 1 " + str(ip))
-            if resp == 0:
-                found = True
-
+        results = JarvisIPUtilities.sweep_range(self.base, self.mask)
+        for ip, data in results.items():
             #check database for item
             items = Item.objects.raw_query({'attributes.IP Address': str(ip)})
             if items.exists() == 1:
                 #one item found, check against current data
-                results[ip] = [items[0], found]
+                data["items"] = items[0]
             elif items.exists() > 1:
                 #two or more items found. Possible IP conflict raise warning
                 #TODO raise warning
-                results[ip] = [items, found]
+                data["items"] = items[0]
             else:
                 #no match found
-                results[ip] = [None, found]
+                data["items"] = None
 
         return results
 
