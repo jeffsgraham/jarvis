@@ -99,6 +99,13 @@ class Model(models.Model):
     def __str__(self):
         return self.name
 
+class LinkStatus(models.Model):
+    """tracks network link uptime by storing changes in link status 
+
+    """
+    timestamp = models.DateTimeField(auto_now_add=True)
+    up = models.BooleanField()
+
 class Item(models.Model):
     """Stores all information about a single item.
 
@@ -123,6 +130,9 @@ class Item(models.Model):
     room = models.ForeignKey('Room', null=True, blank=True, on_delete=models.SET_NULL)
     item = models.ForeignKey('self', null=True, blank=True, related_name="subItem", on_delete=models.SET_NULL)
     active = models.BooleanField(default=True)
+
+    #tracks network link uptime by storing changes in link status 
+    uptime = ListField(EmbeddedModelField('LinkStatus'), null=True, blank=True)
 
     #Dynamic Fields
     attributes = DictModelField(null=True, blank=True)
