@@ -14,7 +14,7 @@ class ItemForm(ModelForm):
 
     class Meta:
         model = Item
-        exclude = ('attributes', 'active', 'created', 'item')
+        exclude = ('attributes', 'active', 'created', 'item', 'uptime')
         widgets = {
             'itemType': TextInput(),
             'manufacturer': TextInput(),
@@ -26,7 +26,7 @@ class ItemForm(ModelForm):
 class ItemForm2(ModelForm):
     class Meta:
         model = Item
-        exclude = ('active', 'created', 'item')
+        exclude = ('active', 'created', 'item', 'uptime')
         widgets = {
             'itemType': TextInput(),
             'manufacturer': TextInput(),
