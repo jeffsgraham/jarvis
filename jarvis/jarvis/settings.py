@@ -97,3 +97,7 @@ STATIC_URL = '/static/'
 
 #auth settings
 LOGIN_REDIRECT_URL = "/"
+
+#HTTPS Settings
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
