@@ -164,12 +164,17 @@ class Item(models.Model):
         else:
             return "new"
 
+    def save_without_revisions(self, *args, **kwargs):
+        super(Item, self).save(*args, **kwargs)
 
-    def save_with_revisions(self, currentUser=None):
+    def save(self, *args, **kwargs):
+        self.save_with_revisions(*args, **kwargs)
+
+    def save_with_revisions(self, user=None, *args, **kwargs):
         """Add changes to item to rev history and then save the changes
         
         Args:
-            current_User: the user who initiated these changes
+            user: the user who initiated these changes
 
         """
 
@@ -185,7 +190,7 @@ class Item(models.Model):
                     old.item != self.item or old.room != self.room):
 
                 #create ItemRevision object
-                revision = ItemRevision.objects.create(item=self, user=currentUser)
+                revision = ItemRevision.objects.create(item=self, user=user)
                 
                 #store old itemType
                 if(old.itemType != self.itemType):
@@ -231,7 +236,7 @@ class Item(models.Model):
                 revision.save()
 
         #save Item instance
-        self.save()
+        self.save_without_revisions(*args, **kwargs)
 
   
     def revert(self, revision):
@@ -288,7 +293,7 @@ class Item(models.Model):
             if rev == revision:
                 break
         #save reverted state
-        self.save()
+        self.save_without_revisions()
 
     def delete(self):
         """Override delete to prevent data loss."""

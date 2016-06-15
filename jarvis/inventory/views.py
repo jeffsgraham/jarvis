@@ -158,7 +158,7 @@ class AjaxEditItem(LoginRequiredMixin, FormView):
         return HttpResponse("Invalid Form Data", content_type="text/plain")
 
     def form_valid(self, form):
-        form.save()
+        form.save(user=self.request.user)
         return HttpResponse("Saved", content_type="text/plain")
 
 class AjaxAddItem(AjaxEditItem):
@@ -204,7 +204,7 @@ class AjaxMoveItem(LoginRequiredMixin, FormView):
         item_name = str(item.manufacturer) + " " + str(item.itemType)
         room_name = str(item.room)
         if form.has_changed():
-            form.save()
+            form.save(user=self.request.user)
             #build confirm message
             alert_type = "success"
             message = item_name + " moved to " + room_name
@@ -232,7 +232,7 @@ class AjaxAttachItem(AjaxMoveItem):
         item_name = str(item.manufacturer) + " " + str(item.itemType)
         parent_item = str(item.item.manufacturer) + " " + str(item.item.itemType)
         if form.has_changed():
-            form.save()
+            form.save(user=self.request.user)
             #build confirm message
             alert_type = "success"
             message = item_name + " attached to " + parent_item
@@ -262,7 +262,7 @@ class AjaxDetachItem(AjaxMoveItem):
         parent_item = Item.objects.get(id=old_item.item.id)
         parent_name = str(parent_item.manufacturer) + " " + str(parent_item.itemType)
         if form.has_changed():
-            form.save()
+            form.save(user=self.request.user)
             #build confirm message
             alert_type = "success"
             message = item_name + " detached from " + parent_name
