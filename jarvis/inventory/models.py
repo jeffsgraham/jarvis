@@ -334,6 +334,40 @@ class ItemRevision(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
     changes = DictField() 
 
+    def action_taken(self):
+        actions = []
+
+        for key, value in self.changes.iteritems():
+            #handle static fields
+            if key == 'itemType':
+                actions.append("Changed Type from " + value)
+            elif key == 'manufacturer':
+                actions.append("Changed Manufacturer from " + value)
+            elif key == 'model':
+                actions.append("Changed Model from " + value)
+            elif key == 'room':
+                room = Room.objects.filter(id=value).first()
+                if not room:
+                    room = "Warehouse"
+                actions.append("Moved Item from "+ str(room))
+            elif key == 'item':
+                if value is not None:
+                    item = Item.objects.filter(id=value).first()
+                    actions.append("Detached Item from "+ str(item))
+                else:
+                    actions.append("Attached Item")
+            elif key == 'active':
+                if value == 'active':
+                    actions.append("Restored Item")
+                else:
+                    actions.append("Deleted Item")
+            elif value is None:
+                actions.append("Added Attribute " + key)
+            else:
+                actions.append("Removed Attribute " + key + ": " + value)
+        return actions
+
+
     def __eq__(self, compare):
         """Override __eq__() to only compare important fields"""
         if not isinstance(compare, ItemRevision):

@@ -1,51 +1,47 @@
 <div class="panel panel-primary">
   <div class="panel-heading">
-    <h3 class="panel-title">Equipment Type</h3>
+    <h3 class="panel-title">Item Details</h3>
   </div>
   <div class="panel-body">
-    {{item.itemType_id}}
+    <div class="table-responsive">
+        <table class="table table-condensed">
+          <tr><td>Type</td><td>{{item.itemType_id}}</td></tr>
+          <tr><td>Manufacturer</td><td>{{item.manufacturer_id}}</td></tr>
+          <tr><td>Model</td><td>{{item.model_id}}</td></tr>
+          <tr><td>Location</td><td>{{item.room}}</td></tr>
+          {% if item.attributes %}
+            {% for attr, value in item.attributes.items %}
+              <tr><td>{{attr}}</td><td>{{value}}</td></tr>
+            {% endfor %}
+          {% endif %}
+        </table>
+    </div>
   </div>
 </div>
+{% if item.itemrevision_set.count > 0 %}
 <div class="panel panel-primary">
   <div class="panel-heading">
-    <h3 class="panel-title">Manufacturer</h3>
+    <h3 class="panel-title">Revision History</h3>
   </div>
   <div class="panel-body">
-    {{item.manufacturer_id}}
-  </div>
-</div>
-<div class="panel panel-primary">
-  <div class="panel-heading">
-    <h3 class="panel-title">Model</h3>
-  </div>
-  <div class="panel-body">
-    {{item.model_id}}
-  </div>
-</div>
-<div class="panel panel-primary">
-  <div class="panel-heading">
-    <h3 class="panel-title">Age</h3>
-  </div>
-  <div class="panel-body">
-    {{item.age}}
-  </div>
-</div>
-{% if item.attributes %}
-<div class="panel panel-primary">
-  <div class="panel-heading">
-    <h3 class="panel-title">Attributes</h3>
-  </div>
-  <div class="panel-body">
-    <table class="table table-striped">
-      <thead>
-        <tr><th>Attribute</th><th>Value</th></tr>
-      </thead>
-      <tbody>
-      {% for attr, value in item.attributes.items %}
-        <tr><td>{{attr}}</td><td>{{value}}</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped table-condensed">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+        {% for rev in item.itemrevision_set.all %}
+          <tr>
+            <td>{% if rev.user %}{{rev.user}}{% endif %}<br/>{{rev.revised|date:"SHORT_DATE_FORMAT"}}</td>
+            <td>{% for action in rev.action_taken %}{{action}}{% endfor %}</td>
+          </tr>
+        {% endfor %}
+          </tbody>
+        </table>
+    </div>
   </div>
 </div>
 {% endif %}
