@@ -22,8 +22,21 @@ class ItemForm(ModelForm):
         }
 
 
+class BaseItemForm(ModelForm):
+    class Meta:
+        model = Item
+        fields = {}
 
-class ItemForm2(ModelForm):
+    def save(self, commit=True, user=None, *args, **kwargs):
+        if commit == True:
+            #create revision
+            item = self.save(commit=False, *args, **kwargs)
+            item.save_with_revisions(user=user, *args, **kwargs)
+        else:
+            return super(BaseItemForm, self).save(commit=commit, *args, **kwargs)
+
+
+class ItemForm2(BaseItemForm):
     class Meta:
         model = Item
         exclude = ('active', 'created', 'item', 'uptime')
@@ -32,20 +45,23 @@ class ItemForm2(ModelForm):
             'manufacturer': TextInput(),
             'model': TextInput(),
         }
+  
+        
 
-class MoveItemForm(ModelForm):
+class MoveItemForm(BaseItemForm):
     class Meta:
         model = Item
         fields = ('room','item')
 
 
-class AttachItemForm(ModelForm):
+class AttachItemForm(BaseItemForm):
     class Meta:
         model = Item
         fields = ('item',)
 
 
-class DetachItemForm(ModelForm):
+class DetachItemForm(BaseItemForm):
     class Meta:
         model = Item
         fields = ('item',)
+

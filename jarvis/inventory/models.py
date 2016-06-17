@@ -164,12 +164,17 @@ class Item(models.Model):
         else:
             return "new"
 
+    def save_without_revisions(self, *args, **kwargs):
+        super(Item, self).save(*args, **kwargs)
 
-    def save_with_revisions(self, currentUser=None):
+    def save(self, *args, **kwargs):
+        self.save_with_revisions(*args, **kwargs)
+
+    def save_with_revisions(self, user=None, *args, **kwargs):
         """Add changes to item to rev history and then save the changes
         
         Args:
-            current_User: the user who initiated these changes
+            user: the user who initiated these changes
 
         """
 
@@ -185,7 +190,7 @@ class Item(models.Model):
                     old.item != self.item or old.room != self.room):
 
                 #create ItemRevision object
-                revision = ItemRevision.objects.create(item=self, user=currentUser)
+                revision = ItemRevision.objects.create(item=self, user=user)
                 
                 #store old itemType
                 if(old.itemType != self.itemType):
@@ -231,7 +236,7 @@ class Item(models.Model):
                 revision.save()
 
         #save Item instance
-        self.save()
+        self.save_without_revisions(*args, **kwargs)
 
   
     def revert(self, revision):
@@ -288,7 +293,7 @@ class Item(models.Model):
             if rev == revision:
                 break
         #save reverted state
-        self.save()
+        self.save_without_revisions()
 
     def delete(self):
         """Override delete to prevent data loss."""
@@ -314,6 +319,11 @@ class Item(models.Model):
     def __str__(self):
         return str(self.manufacturer) + " " + str(self.itemType)
 
+    class MongoMeta:
+        indexes = [
+            {'fields': [('$**', 'text')]},
+        ]
+
 class ItemRevision(models.Model):
     """Each instance represents changes to a single item at a given time.
 
@@ -328,6 +338,40 @@ class ItemRevision(models.Model):
     revised = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
     changes = DictField() 
+
+    def action_taken(self):
+        actions = []
+
+        for key, value in self.changes.iteritems():
+            #handle static fields
+            if key == 'itemType':
+                actions.append("Changed Type from " + value)
+            elif key == 'manufacturer':
+                actions.append("Changed Manufacturer from " + value)
+            elif key == 'model':
+                actions.append("Changed Model from " + value)
+            elif key == 'room':
+                room = Room.objects.filter(id=value).first()
+                if not room:
+                    room = "Warehouse"
+                actions.append("Moved Item from "+ str(room))
+            elif key == 'item':
+                if value is not None:
+                    item = Item.objects.filter(id=value).first()
+                    actions.append("Detached Item from "+ str(item))
+                else:
+                    actions.append("Attached Item")
+            elif key == 'active':
+                if value == 'active':
+                    actions.append("Restored Item")
+                else:
+                    actions.append("Deleted Item")
+            elif value is None:
+                actions.append("Added Attribute " + key)
+            else:
+                actions.append("Removed Attribute " + key + ": " + value)
+        return actions
+
 
     def __eq__(self, compare):
         """Override __eq__() to only compare important fields"""

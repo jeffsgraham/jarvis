@@ -49,13 +49,13 @@ class MainListTestCase(AbstractViewGetTests, TestCase):
 
 class AjaxMainListTextCase(AbstractViewGetTests, TestCase):
     base_url = "/inventory/item/all/"
-    context_keys = ['items', 'locationinfo', 'pagetitle', 'content_url']
+    context_keys = ['items', 'pagetitle', 'content_url']
 
 
 class AjaxRoomViewTestCase(AbstractViewGetTests, TestCase):
     base_url = "/inventory/room/"
     suffix_url = "/item/all/"
-    context_keys = ['room', 'items', 'locationinfo', 'pagetitle', 'content_url']
+    context_keys = ['room', 'items', 'pagetitle', 'content_url']
 
     def setUp(self):
         super(AjaxRoomViewTestCase, self).setUp()
