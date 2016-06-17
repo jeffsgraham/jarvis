@@ -84,6 +84,16 @@ class AjaxMainList(LoginRequiredMixin, View):
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_room_view.html', locals())
 
+
+class AjaxSearchItems(LoginRequiredMixin, View):
+    """AJAX view that lists all active items that match the given search terms."""
+    def get(self, request, *args):
+        items = Item.objects.raw_query({'$text': {'$search': self.args[0]}})
+        pagetitle = "Results for " + self.args[0]
+        content_url = request.META['PATH_INFO']
+        disable_add = True
+        return render_to_response('ajax_room_view.html', locals())
+
 class AjaxIPRangeList(LoginRequiredMixin, View):
     """AJAX view that lists saved IPRanges."""
     def get(self, request, *args):

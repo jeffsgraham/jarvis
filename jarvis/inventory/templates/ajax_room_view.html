@@ -73,8 +73,8 @@
             {% endif %}
             {% empty %}
             <tr>
-                <td colspan="5" class="text-center">No Items Found, Add Item 
-                    <button type="button" class="btn btn-primary btn-circle" onclick="jarv_item_form2('/inventory/room/{{room.id}}/item/add/')"><span class="glyphicon glyphicon-plus"></span></button>
+                <td colspan="5" class="text-center">No Items Found{% if not disable_add %}, Add Item 
+                    <button type="button" class="btn btn-primary btn-circle" onclick="jarv_item_form2('/inventory/room/{{room.id}}/item/add/')"><span class="glyphicon glyphicon-plus"></span></button>{% endif %}
                 </td>
             </tr>
             {% endfor %}

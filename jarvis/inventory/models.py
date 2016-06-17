@@ -319,6 +319,11 @@ class Item(models.Model):
     def __str__(self):
         return str(self.manufacturer) + " " + str(self.itemType)
 
+    class MongoMeta:
+        indexes = [
+            {'fields': [('itemType', 'text')]},
+        ]
+
 class ItemRevision(models.Model):
     """Each instance represents changes to a single item at a given time.
 

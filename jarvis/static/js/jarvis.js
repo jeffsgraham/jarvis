@@ -65,6 +65,12 @@ function jarv_load_main_list() {
             jarv_close_details();
         }
     });
+
+    //register searchform submission handler
+    $('#jarv-search-form').submit(function(e) {
+        e.preventDefault(); //prevent default action
+        jarv_get_content("/inventory/item/search/" + $("#jarv-search-box").val());
+    });
 }
 
 //helper function to get cookie values.
