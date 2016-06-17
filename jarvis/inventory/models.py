@@ -321,7 +321,7 @@ class Item(models.Model):
 
     class MongoMeta:
         indexes = [
-            {'fields': [('itemType', 'text')]},
+            {'fields': [('$**', 'text')]},
         ]
 
 class ItemRevision(models.Model):
