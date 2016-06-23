@@ -95,6 +95,9 @@ class Attribute(models.Model):
 
 class Model(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
+    manufacturer = models.ForeignKey('Manufacturer', blank=True, null=True)
+    itemType = models.ForeignKey('Type', blank=True, null=True)
+    indicativeAttributes = ListField()
 
     def __str__(self):
         return self.name
