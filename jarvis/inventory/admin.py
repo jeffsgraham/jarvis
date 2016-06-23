@@ -3,7 +3,7 @@ from models import *
 
 #exclude list field from admin interface
 class ItemModelAdmin(admin.ModelAdmin):
-    exclude = ('indicativeAttributes',)
+    exclude = ('partNumbers',)
 
 
 admin.site.register(Type)
