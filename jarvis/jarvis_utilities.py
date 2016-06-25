@@ -1,6 +1,6 @@
 from netaddr import *
 import urllib2
-import os
+import os, subprocess
 from collections import OrderedDict
 
 class JarvisIPUtilities():
@@ -20,7 +20,7 @@ class JarvisIPUtilities():
 
     @staticmethod
     def ping(ip):
-        resp = os.system("ping -c 1 -w 1 " + str(ip))
+        resp = os.system("ping -c 1 -w 1 " + str(ip) + " > /dev/null 2>&1")
         if resp == 0:
             return True
         else:
