@@ -95,6 +95,14 @@ class Attribute(models.Model):
 
 class Model(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
+    manufacturer = models.ForeignKey('Manufacturer', blank=True, null=True)
+    itemType = models.ForeignKey('Type', blank=True, null=True)
+    partNumbers = ListField()
+
+    #override objects manager with mongo specific manager
+    #allows raw queries to mongodb
+    #this breaks compatibility with other databases
+    objects = MongoDBManager()
 
     def __str__(self):
         return self.name
