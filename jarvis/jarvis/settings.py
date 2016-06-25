@@ -84,7 +84,7 @@ USE_L10N = True
 USE_TZ = False
 
 TEMPLATE_DIRS = (
-            '/home/ubuntu/workspace/jarvis/inventory/templates',
+        os.path.join(BASE_DIR, 'templates').replace('\\','/'),
             )
 
 # Static files (CSS, JavaScript, Images)
