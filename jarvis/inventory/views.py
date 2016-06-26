@@ -115,6 +115,7 @@ class AjaxItemDetail(LoginRequiredMixin, View):
     """AJAX view that shows item details."""
     def get(self, request, *args):
         item = get_object_or_404(Item, id=self.args[0])
+        revisions = item.itemrevision_set.order_by("-revised")
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_detail_view.html', locals())
 
