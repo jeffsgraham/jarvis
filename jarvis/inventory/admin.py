@@ -11,6 +11,7 @@ class ItemAdmin(admin.ModelAdmin):
 admin.site.register(Type)
 admin.site.register(Model, ItemModelAdmin)
 admin.site.register(Manufacturer)
+admin.site.register(Attribute)
 admin.site.register(IPRange)
 admin.site.register(Building)
 admin.site.register(Room)

@@ -146,12 +146,19 @@ div.hidden {
 .jarv-show-grid {
     margin-bottom: 15px;
 }
-
+.btn-circle.btn-xs {
+    width: 20px;
+    height: 20px;
+    padding: 3px 5px;
+    font-size: 9px;
+    line-height: 1;
+    border-radius: 10px;
+}
 .btn-circle {
     width: 30px;
     height: 30px;
     text-align: center;
-    padding: 6px 0;
+    padding: 6px 0px;
     font-size: 12px;
     line-height: 1.428571429;
     border-radius: 15px;
@@ -159,6 +166,26 @@ div.hidden {
 }
 .btn-circle:focus {outline:0;}
 .btn-circle:active {outline:none;border:none;}
+
+a.boxclose{
+    float:right;
+    margin-top:-15px;
+    margin-right:-12px;
+    cursor:pointer;
+    color: #fff;
+    border: 1px solid #AEAEAE;
+    border-radius: 30px;
+    background: #605F61;
+    font-size: 18px;
+    font-weight: bold;
+    display: inline-block;
+    line-height: 0px;
+    padding: 8px 3px;       
+}
+
+.boxclose:before {
+    content: "×";
+}
 
 .jarv-ui-blue {
   background-color: #428bca;
