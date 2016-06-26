@@ -150,9 +150,9 @@ class AjaxEditItem(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(AjaxEditItem, self).get_context_data(**kwargs)
-        context['itemTypes'] = Type.objects.all()
-        context['manufacturers'] = Manufacturer.objects.all()
-        context['models'] = Model.objects.all()
+        context['itemTypes'] = Type.objects.all().order_by("name")
+        context['manufacturers'] = Manufacturer.objects.all().order_by("name")
+        context['models'] = Model.objects.all().order_by("name")
         context['attrSuggestions'] = Attribute.objects.all().order_by("name")
 
         context['item'] = get_object_or_404(Item, id=self.args[0])
@@ -177,9 +177,9 @@ class AjaxAddItem(AjaxEditItem):
     def get_context_data(self, **kwargs):
         context = super(AjaxEditItem, self).get_context_data(**kwargs) #grandparent's method
 
-        context['itemTypes'] = Type.objects.all()
-        context['manufacturers'] = Manufacturer.objects.all()
-        context['models'] = Model.objects.all()
+        context['itemTypes'] = Type.objects.all().order_by("name")
+        context['manufacturers'] = Manufacturer.objects.all().order_by("name")
+        context['models'] = Model.objects.all().order_by("name")
 
         if(len(self.args) >= 1): #if room id has been passed
             context['room'] = get_object_or_404(Room, id=self.args[0])
