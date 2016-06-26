@@ -436,4 +436,20 @@ function jarv_close_details()
     $('#jarv-detail-pane').animate({"right":"-" + paneWidth + "px"}, "fast");
 }
 
-
+function jarv_archive_item(submit_url, item_id)
+{
+    $.ajax({
+        type: "POST",
+        url: submit_url,
+        data: {"active":'false', "csrfmiddlewaretoken": getCookie('csrftoken')},
+        success: function(data, textStatus, jqXHR) {
+            jarv_get_content($('#jarv-content-url').text());
+            $('#jarv-alerts').html(data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            var item_desc = $('#'+item_id).attr('description');
+            var message = "A server error occurred while trying to archive " + item_desc;
+            jarv_ajax_error(jqXHR, textStatus, errorThrown, message);
+        }
+    });
+}

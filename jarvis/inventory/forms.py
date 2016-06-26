@@ -65,3 +65,7 @@ class DetachItemForm(BaseItemForm):
         model = Item
         fields = ('item',)
 
+class ArchiveItemForm(BaseItemForm):
+    class Meta:
+        model = Item
+        fields = ('active',)

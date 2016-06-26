@@ -145,6 +145,10 @@ class Item(models.Model):
     #Dynamic Fields
     attributes = DictModelField(null=True, blank=True)
 
+    #get only active subitems
+    def activeSubItems(self):
+        return self.subItem.filter(active=True)
+
     #override objects manager with mongo specific manager
     #allows raw queries to mongodb
     #this breaks compatibility with other databases

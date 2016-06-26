@@ -77,9 +77,9 @@ class MainList(LoginRequiredMixin, TemplateView):
         return context
 
 class AjaxMainList(LoginRequiredMixin, View):
-    """AJAX view that lists all active items, used in main page view."""
+    """AJAX view that lists all active, unattached items. Used in main page view."""
     def get(self, request, *args):
-        items = Item.objects.filter(active=True)
+        items = Item.objects.filter(active=True, item=None)
         pagetitle = "Jarvis Home"
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_room_view.html', locals())
@@ -122,7 +122,7 @@ class AjaxRoomView(LoginRequiredMixin, View):
     """AJAX View for room info requests. Lists all items in requested room."""
     def get(self, request, *args):
         room = get_object_or_404(Room, id=self.args[0])
-        items = room.item_set.filter(active=True)
+        items = room.item_set.filter(active=True, item=None)
         pagetitle = room.building.abbrev + " " + str(room.number)
         
         content_url = request.META['PATH_INFO']
@@ -280,3 +280,34 @@ class AjaxDetachItem(AjaxMoveItem):
             alert_type = "warning"
             message = item_name + " was not already attached to " + parent_name
         return render_to_response('ajax_move_item_confirm.html', locals())
+
+class AjaxArchiveItem(LoginRequiredMixin, FormView):
+    form_class = ArchiveItemForm
+    success_url = "/"
+
+    def get_form(self, form_class=None):
+        item = get_object_or_404(Item, id=self.args[0])
+        return form_class(self.request.POST, instance=item)
+        
+    def form_invalid(self, form):
+        alert_type = "danger"
+        #build error message
+        item = form.instance
+        itemType = str(item.itemType)
+        message = "Couldn't archive " + itemType + ". Invalid Form Data."
+        return render_to_response('ajax_move_item_confirm.html', locals())
+
+    def form_valid(self, form):
+        message = ""
+        item = form.instance
+        item_name = str(item.manufacturer) + " " + str(item.itemType)
+        if form.has_changed():
+            form.save(user=self.request.user)
+            #build confirm message
+            alert_type = "success"
+            message = item_name + " Archived."
+        else:
+            alert_type = "warning"
+            message = item_name + " was already archived."
+        return render_to_response('ajax_move_item_confirm.html', locals())
+
