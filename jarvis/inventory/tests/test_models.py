@@ -6,16 +6,16 @@ class ItemTestCase(TestCase):
     def setUp(self):
         self.key = 'ipAddress'
         self.value = '10.221.248.123'
-        scaler = Type.objects.get_or_create(name="Video Scaler")[0]
-        extron = Manufacturer.objects.get_or_create(name="Extron")[0]
-        dvs = Model.objects.get_or_create(name="DVS304")[0]
-        Item.objects.create(itemType=scaler, manufacturer=extron, \
-            model=dvs, attributes={'serial':"1234Serial", 'sid':"B078989"})
+        self.type_scaler = Type.objects.get_or_create(name="Video Scaler")[0]
+        self.man_extron = Manufacturer.objects.get_or_create(name="Extron")[0]
+        self.mod_dvs = Model.objects.get_or_create(name="DVS304")[0]
+        Item.objects.create(itemType=self.type_scaler, manufacturer=self.man_extron, \
+            model=self.mod_dvs, attributes={'serial':"1234Serial", 'sid':"B078989"})
 
-        comp = Type.objects.get_or_create(name="Computer")[0]
-        hp = Manufacturer.objects.get_or_create(name="HP")[0]
-        dc8300 = Model.objects.get_or_create(name="DC8300")[0]
-        Item.objects.create(itemType=comp, manufacturer=hp, model=dc8300, \
+        self.type_comp = Type.objects.get_or_create(name="Computer")[0]
+        self.man_hp = Manufacturer.objects.get_or_create(name="HP")[0]
+        self.mod_dc8300 = Model.objects.get_or_create(name="DC8300")[0]
+        Item.objects.create(itemType=self.type_comp, manufacturer=self.man_hp, model=self.mod_dc8300, \
                 attributes={'serial':"qweqtrt1234", self.key:self.value})
 
     def test_simple_revision(self):
@@ -42,11 +42,11 @@ class ItemTestCase(TestCase):
 
     def test_delete_revisions(self):
         #delete Item
-        computer = Item.objects.get(itemType="Computer")
+        computer = Item.objects.get(itemType=self.type_comp)
         computer.delete()
 
         #still exists in DB
-        c1 = Item.objects.get(itemType="Computer")
+        c1 = Item.objects.get(itemType=self.type_comp)
         self.assertTrue(c1.id == computer.id)
 
         #is set to active == false
@@ -58,15 +58,15 @@ class ItemTestCase(TestCase):
 
         #revert item
         c1.revert(rev)
-        c2 = Item.objects.get(itemType="Computer")
+        c2 = Item.objects.get(itemType=self.type_comp)
         self.assertTrue(c1.active == True)
 
 
     def test_complex_revision(self):
         #get items from DB
-        computer = Item.objects.get(itemType="Computer")
+        computer = Item.objects.get(itemType=self.type_comp)
         altered = copy.deepcopy(computer)
-        scaler = Item.objects.get(itemType="Video Scaler")
+        scaler = Item.objects.get(itemType=self.type_scaler)
         self.assertTrue(computer == altered)
 
         #alter item
@@ -91,9 +91,9 @@ class ItemTestCase(TestCase):
 
     def test_iterative_revision(self):
         #get items from DB
-        computer = Item.objects.get(itemType="Computer")
+        computer = Item.objects.get(itemType=self.type_comp)
         altered = copy.deepcopy(computer)
-        scaler = Item.objects.get(itemType="Video Scaler")
+        scaler = Item.objects.get(itemType=self.type_scaler)
         self.assertTrue(computer == altered)
 
         #alter item
@@ -138,9 +138,8 @@ class ItemTestCase(TestCase):
         self.assertTrue(len(revs) == 0)
   
     def test_missing_fkey_revisions(self):
-        
-        computer = Item.objects.get(itemType="Computer")
-        scaler = Item.objects.get(itemType="Video Scaler")
+        computer = Item.objects.get(itemType=self.type_comp)
+        scaler = Item.objects.get(itemType=self.type_scaler)
 
         #alter item
         computer.item = scaler
@@ -154,7 +153,7 @@ class ItemTestCase(TestCase):
         scalerId = scaler.id #store scaler id for later comparison
         #do actual DB deletion (since Item.delete() is overloaded to not lose data
         super(Item, scaler).delete() 
-        self.assertTrue(len(Item.objects.filter(itemType="Video Scaler", active=True)) == 0)
+        self.assertTrue(len(Item.objects.filter(itemType=self.type_scaler, active=True)) == 0)
 
         #revert to old revision
         rev2 = ItemRevision.objects.filter(item=computer).order_by('-revised')[0]
