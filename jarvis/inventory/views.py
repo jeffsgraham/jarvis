@@ -79,8 +79,8 @@ class MainList(LoginRequiredMixin, TemplateView):
 class AjaxMainList(LoginRequiredMixin, View):
     """AJAX view that lists all active, unattached items. Used in main page view."""
     def get(self, request, *args):
-        items = Item.objects.filter(active=True, item=None)
-        pagetitle = "Jarvis Home"
+        items = Item.objects.filter(active=True, item=None, room=None)
+        pagetitle = "Warehouse"
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_room_view.html', locals())
 
