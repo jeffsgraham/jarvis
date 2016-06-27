@@ -31,7 +31,7 @@
                                       </select>
                                   {% if user.is_superuser %}
                                       <span class="input-group-btn">
-                                        <a target="_blank" href="/admin/inventory/type/add/" class="btn btn-success btn-sm btn-circle" type="button" id="addType"><span class="glyphicon glyphicon-plus"></span></a>
+                                        <a target="_blank" href="/admin/inventory/type/add/" class="btn btn-success btn-sm btn-circle" type="button" id="addType" title="Add New Equipment Type"><span class="glyphicon glyphicon-plus"></span></a>
                                       </span>
                                     </div>
                                   {% endif %}
@@ -56,7 +56,7 @@
                                     </select>
                                   {% if user.is_superuser %}
                                       <span class="input-group-btn">
-                                        <a target="_blank" href="/admin/inventory/manufacturer/add/" class="btn btn-success btn-sm btn-circle" type="button" id="addManufacturer"><span class="glyphicon glyphicon-plus"></span></a>
+                                        <a target="_blank" href="/admin/inventory/manufacturer/add/" class="btn btn-success btn-sm btn-circle" type="button" id="addManufacturer" title="Add New Manufacturer"><span class="glyphicon glyphicon-plus"></span></a>
                                       </span>
                                     </div>
                                   {% endif %}
@@ -82,7 +82,7 @@
                                     </select>
                                   {% if user.is_superuser %}
                                       <span class="input-group-btn">
-                                        <a target="_blank" href="/admin/inventory/model/add/" class="btn btn-success btn-sm btn-circle" type="button" id="addModel"><span class="glyphicon glyphicon-plus"></span></a>
+                                        <a target="_blank" href="/admin/inventory/model/add/" class="btn btn-success btn-sm btn-circle" type="button" id="addModel" title="Add New Model"><span class="glyphicon glyphicon-plus"></span></a>
                                       </span>
                                     </div>
                                   {% endif %}
@@ -103,13 +103,18 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="row">
-                            <div class="col-xs-12">Attributes</div>
+                            <div class="col-xs-12">
+                                Attributes
+                                  {% if user.is_superuser %}
+                                      <a target="_blank" href="/admin/inventory/attribute/add/" class="btn btn-success btn-circle btn-xs" type="button" id="addModel" title="Add New Attribute Key"><span class="glyphicon glyphicon-plus"></span></a>
+                                  {% endif %}
+                            </div>
                         </div>
                         <div id="jarv-edit-attribute-row" class="row jarv-edit-attribute-row">
                         {% for attr, value in item.attributes.items %}
                           {% include 'ajax_item_attribute_form.html' %}
                         {% endfor %}
-                            <div id="jarv-add-attr-cell" class="col-xs-6 col-sm-4 jarv-show-grid" style="vertical-align:middle;display:table-cell;">
+                            <div id="jarv-add-attr-cell" class="col-xs-6 col-sm-4 jarv-show-grid" style="margin-top:5%">
                               <p class="text-center"><button type="button" id="jarv-add-attribute" class="btn btn-primary btn-sm">Add Attribute</button></p>
                             </div>
 

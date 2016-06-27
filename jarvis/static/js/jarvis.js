@@ -311,7 +311,10 @@ function jarvis_serialize_item_form(form)
     $('.jarv-edit-attribute').each(function(){
             var key = $(this).find('select.item-attr-key').first().val();
             var value = $(this).find('input.item-attr-value').first().val();
-            attributes[key] = value;
+            //only store if a value has been specified
+            if (value.trim()) {
+                attributes[key] = value;
+            }
     });
 
     //serialize form data
@@ -436,4 +439,27 @@ function jarv_close_details()
     $('#jarv-detail-pane').animate({"right":"-" + paneWidth + "px"}, "fast");
 }
 
+function jarv_archive_item(submit_url, item_id)
+{
+    $.ajax({
+        type: "POST",
+        url: submit_url,
+        data: {"active":'false', "csrfmiddlewaretoken": getCookie('csrftoken')},
+        success: function(data, textStatus, jqXHR) {
+            jarv_get_content($('#jarv-content-url').text());
+            $('#jarv-alerts').html(data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            var item_desc = $('#'+item_id).attr('description');
+            var message = "A server error occurred while trying to archive " + item_desc;
+            jarv_ajax_error(jqXHR, textStatus, errorThrown, message);
+        }
+    });
+}
 
+//remove attribute form
+function jarv_remove_attr_form(e, element)
+{
+    e.preventDefault();
+    $(element).closest('.jarv-edit-attribute').remove();
+}

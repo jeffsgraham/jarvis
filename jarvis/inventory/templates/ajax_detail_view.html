@@ -5,9 +5,9 @@
   <div class="panel-body">
     <div class="table-responsive">
         <table class="table table-condensed">
-          <tr><td>Type</td><td>{{item.itemType_id}}</td></tr>
-          <tr><td>Manufacturer</td><td>{{item.manufacturer_id}}</td></tr>
-          <tr><td>Model</td><td>{{item.model_id}}</td></tr>
+          <tr><td>Type</td><td>{{item.itemType}}</td></tr>
+          <tr><td>Manufacturer</td><td>{{item.manufacturer}}</td></tr>
+          <tr><td>Model</td><td>{{item.model}}</td></tr>
           <tr><td>Location</td><td>{{item.room}}</td></tr>
           {% if item.attributes %}
             {% for attr, value in item.attributes.items %}
@@ -33,7 +33,7 @@
             </tr>
           </thead>
           <tbody>
-        {% for rev in item.itemrevision_set.all %}
+        {% for rev in revisions %}
           <tr>
             <td>{% if rev.user %}{{rev.user}}{% endif %}<br/>{{rev.revised|date:"SHORT_DATE_FORMAT"}}</td>
             <td>{% for action in rev.action_taken %}{{action}}{% endfor %}</td>
