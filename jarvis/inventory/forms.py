@@ -53,12 +53,19 @@ class MoveItemForm(BaseItemForm):
         model = Item
         fields = ('room','item')
 
+    def save(self, commit=True, user=None, *args, **kwargs):
+        retVal = super(MoveItemForm, self).save(commit=commit, *args, **kwargs)
+        if commit == True:
+            #move subitems
+            for item in self.instance.subItem.all():
+                item.room = self.instance.room
+                item.save(user=user)
+        return retVal
 
 class AttachItemForm(BaseItemForm):
     class Meta:
         model = Item
         fields = ('item',)
-
 
 class DetachItemForm(BaseItemForm):
     class Meta:
