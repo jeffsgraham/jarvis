@@ -20,9 +20,9 @@
             {% for item in items %}
             {% if not item.item_id %}
             <tr class="jarv-item-row{% if item.subItem.count > 0 %} jarv-parent-item{% endif %}" id="{{item.id}}" description="{{item}}">
-                <td class="jarv-draggable-helper"><div class="jarv-draggable-handle pull-left"><img src="{% static 'img/dndhandle-icon.gif' %}" /></div>{{item.itemType_id}}</td>
-                <td>{{item.manufacturer_id}}</td>
-                <td>{{item.model_id}}</td>
+                <td class="jarv-draggable-helper"><div class="jarv-draggable-handle pull-left"><img src="{% static 'img/dndhandle-icon.gif' %}" /></div>{{item.itemType}}</td>
+                <td>{{item.manufacturer}}</td>
+                <td>{{item.model}}</td>
                 <td class="hidden-xs hidden-sm">{{item.age}}</td>
                 <td class="jarv-actions-cell">
                     <!-- Split button -->
@@ -45,9 +45,9 @@
             </tr>
             {% for subitem in item.activeSubItems %}
             <tr class="jarv-item-row jarv-subitem-row" id="{{subitem.id}}" parent_id="{{item.id}}" description="{{subitem}}">
-                <td class="jarv-draggable-helper"><div class="jarv-draggable-handle pull-left"><img src="{% static 'img/dndhandle-icon.gif' %}" /></div>{{subitem.itemType_id}}</td>
-                <td>{{subitem.manufacturer_id}}</td>
-                <td>{{subitem.model_id}}</td>
+                <td class="jarv-draggable-helper"><div class="jarv-draggable-handle pull-left"><img src="{% static 'img/dndhandle-icon.gif' %}" /></div>{{subitem.itemType}}</td>
+                <td>{{subitem.manufacturer}}</td>
+                <td>{{subitem.model}}</td>
                 <td class="hidden-xs hidden-sm">{{subitem.age}}</td>
                 <td class="jarv-actions-cell">
                     <!--<button type="button" class="btn btn-primary btn-xs" onclick="jarv_item_form2('/inventory/item/{{subitem.id}}/edit/');">

@@ -72,14 +72,14 @@ class IPRange(models.Model):
 
 
 class Manufacturer(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
 
 
 class Type(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
@@ -88,13 +88,13 @@ class Attribute(models.Model):
     """Stores Attribute Key suggestions for items.
     
     """
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
 
 class Model(models.Model):
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=50)
     manufacturer = models.ForeignKey('Manufacturer', blank=True, null=True)
     itemType = models.ForeignKey('Type', blank=True, null=True)
     partNumbers = ListField()
