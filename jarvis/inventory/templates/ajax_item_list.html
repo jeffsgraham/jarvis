@@ -1,0 +1,46 @@
+{% load staticfiles %}
+<h1 class="page-header">{{pagetitle}}
+{% if not disable_add %}
+    <button type="button" class="btn btn-primary btn-xs jarv-superscript" onclick="jarv_item_form2({% if room %}'/inventory/room/{{room.id}}/item/add/'{% else %}'/inventory/item/add/'{% endif %});">Add Item</button>
+{% endif %}
+</h1>
+<div id="jarv-content-url" class="hidden">{{content_url}}</div>
+
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Manufacturer</th>
+                <th>Model</th>
+                <th class="hidden-xs hidden-sm hidden-md">IP Address</th>
+                <th class="hidden-xs hidden-sm hidden-md">Serial</th>
+                <th class="hidden-xs hidden-sm">Age</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                {% if not item.item_id %}
+                    <tr class="jarv-item-row{% if item.subItem.count > 0 %} jarv-parent-item{% endif %}" id="{{item.id}}" description="{{item}}">
+                        {% include "item_row.html" %}
+                    </tr>
+                    {% if not hideSubItems %}
+                        {% for subitem in item.activeSubItems %}
+                            <tr class="jarv-item-row jarv-subitem-row" id="{{subitem.id}}" parent_id="{{item.id}}" description="{{subitem}}">
+                                {% include "item_row.html" with item=subitem %}
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">No Items Found{% if not disable_add %}, Add Item 
+                        <button type="button" class="btn btn-primary btn-circle" onclick="jarv_item_form2('/inventory/room/{{room.id}}/item/add/')"><span class="glyphicon glyphicon-plus"></span></button>{% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

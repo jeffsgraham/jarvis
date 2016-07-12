@@ -1,0 +1,26 @@
+{% load staticfiles %}
+{% load jarvis_filters %}
+    <td class="jarv-draggable-helper"><div class="jarv-draggable-handle pull-left"><img src="{% static 'img/dndhandle-icon.gif' %}" /></div>{{item.itemType}}</td>
+    <td>{{item.manufacturer}}</td>
+    <td>{{item.model}}</td>
+    <td class="hidden-xs hidden-sm hidden-md">{{item.attributes|get:"IP Address"}}</td>
+    <td class="hidden-xs hidden-sm hidden-md">{{item.attributes.Serial}}</td>
+    <td class="hidden-xs hidden-sm">{{item.age}}</td>
+    <td class="jarv-actions-cell">
+        <!-- Split button -->
+        <div class="btn-group jarv-split-button">
+            <button type="button" class="btn btn-primary btn-xs" onclick="jarv_show_details('/inventory/item/{{item.id}}/details/')">Details</button>
+            <button type="button" class="btn btn-primary btn-xs jarv-dropdown-overflow dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu jarv-dropdown-menu">
+                <li><a href="#" onclick="jarv_item_form2('/inventory/item/{{item.id}}/edit/');">Edit</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#" onclick="jarv_archive_item('/inventory/item/{{item.id}}/archive/', '{{item.id}}');">Archive Item</a></li>
+            </ul>
+        </div>
+        <button type="button" class="btn btn-primary btn-xs jarv-attach-droppable" style="display:none;" target_id="{{item.id}}" action_type="attach">
+            Attach Here
+        </button>
+    </td>

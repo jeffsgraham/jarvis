@@ -82,7 +82,7 @@ class AjaxMainList(LoginRequiredMixin, View):
         items = Item.objects.filter(active=True, item=None, room=None)
         pagetitle = "Warehouse"
         content_url = request.META['PATH_INFO']
-        return render_to_response('ajax_room_view.html', locals())
+        return render_to_response('ajax_item_list.html', locals())
 
 
 class AjaxSearchItems(LoginRequiredMixin, View):
@@ -92,7 +92,7 @@ class AjaxSearchItems(LoginRequiredMixin, View):
         pagetitle = "Results for " + self.args[0]
         content_url = request.META['PATH_INFO']
         disable_add = True
-        return render_to_response('ajax_room_view.html', locals())
+        return render_to_response('ajax_item_list.html', locals())
 
 class AjaxIPRangeList(LoginRequiredMixin, View):
     """AJAX view that lists saved IPRanges."""
@@ -127,7 +127,7 @@ class AjaxRoomView(LoginRequiredMixin, View):
         pagetitle = room.building.abbrev + " " + str(room.number)
         
         content_url = request.META['PATH_INFO']
-        return render_to_response('ajax_room_view.html', locals())
+        return render_to_response('ajax_item_list.html', locals())
 
 class AjaxAttributeAdd(LoginRequiredMixin, View):
     """AJAX View for item attribute suggestions form."""
