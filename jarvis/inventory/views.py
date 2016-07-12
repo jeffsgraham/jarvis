@@ -213,7 +213,7 @@ class AjaxMoveItem(LoginRequiredMixin, FormView):
         message = ""
         item = form.instance
         item_name = str(item.manufacturer) + " " + str(item.itemType)
-        room_name = str(item.room)
+        room_name = str(item.room or "Warehouse") #default to warehouse if room=None
         if form.has_changed():
             form.save(user=self.request.user)
             #build confirm message

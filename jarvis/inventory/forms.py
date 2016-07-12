@@ -54,7 +54,7 @@ class MoveItemForm(BaseItemForm):
         fields = ('room','item')
 
     def save(self, commit=True, user=None, *args, **kwargs):
-        retVal = super(MoveItemForm, self).save(commit=commit, *args, **kwargs)
+        retVal = super(MoveItemForm, self).save(commit=commit, user=user, *args, **kwargs)
         if commit == True:
             #move subitems
             for item in self.instance.subItem.all():

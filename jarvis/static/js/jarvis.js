@@ -253,6 +253,36 @@ function jarv_get_content(url, placeholder)
                 });
             }
         });
+
+        //setup warehouse droppable
+        $('#jarv-sidebar-warehouse').droppable({
+            tolerance: "pointer",
+            accept: ".jarv-item-row",
+            hoverClass: "jarv-drop-hover",
+            greedy: true,
+            drop: function(e, ui) {
+                //get item id
+                var item_id = $(ui.draggable).attr('id');
+                //get room id
+                var room_id = null
+                $.ajax({
+                    type: "POST",
+                    url: "/inventory/item/" + item_id + "/move/",
+                    data: {"room": room_id, "csrfmiddlewaretoken": getCookie('csrftoken'), "item": ""},
+                    success: function(data, textStatus, jqXHR) {
+                        jarv_get_content($('#jarv-content-url').text());
+                        $('#jarv-alerts').html(data);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        var item_desc = $('#'+item_id).attr('description');
+                        var room_desc = "Warehouse"
+
+                        var message = "A server error occurred while trying to move " + item_desc + " to " + room_desc;
+                        jarv_ajax_error(jqXHR, textStatus, errorThrown, message);
+                    }
+                });
+            }
+        });
         
         //setup item-attach droppable
         $('.jarv-attach-droppable').droppable({
