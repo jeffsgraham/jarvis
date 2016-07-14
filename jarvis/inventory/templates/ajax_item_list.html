@@ -14,12 +14,19 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Type</th>
-                <th>Manufacturer</th>
-                <th>Model</th>
+                <th>
+                    <a href="" onclick="jarv_toggle_sort(event,'itemType');">Type</a>{% if order_list.0 == "itemType" %}<span id="jarv-itemType-sort" class="sorted glyphicon glyphicon-chevron-down" aria-hidden="true"></span>{% else %}{% if order_list.0 == "-itemType" %}<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>{% endif %}{% endif %}
+                <th>
+                    <a href="" onclick="jarv_toggle_sort(event,'manufacturer');">Manufacturer</a>{% if order_list.0 == "manufacturer" %}<span id="jarv-manufacturer-sort" class="sorted glyphicon glyphicon-chevron-down" aria-hidden="true"></span>{% else %}{% if order_list.0 == "-manufacturer" %}<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>{% endif %}{% endif %}
+                </th>
+                <th>
+                    <a href="" onclick="jarv_toggle_sort(event,'model');">Model</a>{% if order_list.0 == "model" %}<span id="jarv-model-sort" class="sorted glyphicon glyphicon-chevron-down" aria-hidden="true"></span>{% else %}{% if order_list.0 == "-model" %}<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>{% endif %}{% endif %}
+                </th>
                 <th class="hidden-xs hidden-sm hidden-md">IP Address</th>
                 <th class="hidden-xs hidden-sm hidden-md">Serial</th>
-                <th class="hidden-xs hidden-sm">Age</th>
+                <th class="hidden-xs hidden-sm">
+                    <a href="" onclick="jarv_toggle_sort(event,'created');">Age</a>{% if order_list.0 == "created" %}<span id="jarv-created-sort" class="sorted glyphicon glyphicon-chevron-down" aria-hidden="true"></span>{% else %}{% if order_list.0 == "-created" %}<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>{% endif %}{% endif %}
+                </th>
                 <th>Actions</th>
             </tr>
         </thead>

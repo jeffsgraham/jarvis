@@ -91,6 +91,17 @@ function getCookie(name) {
     return cookieValue;
 }
 
+//toggles table sorting
+function jarv_toggle_sort(e, field) {
+    e.preventDefault(); //prevent link from being followed
+    //setup toggle
+    if($('#jarv-'+field+'-sort').hasClass('sorted'))
+    {
+        field = "-" + field;
+    }
+    jarv_get_content($('#jarv-content-url').text() + '?sort_by=' + field);
+}
+
 //handles errors in ajax communications with server and displays details
 function jarv_ajax_error(jqXHR, textStatus, errorThrown, message)
 {
