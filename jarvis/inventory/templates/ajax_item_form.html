@@ -26,7 +26,7 @@
                                       <select class="text form-control" id="itemType" name="itemType" selectedIndex=-1>
                                         <option selected disabled hidden value=''></option>
                                         {% for type in itemTypes %}  
-                                          <option {% if type == item.itemType %}selected="selected"{% endif %} value="{{type.id}}">{{type}}</option>
+                                          <option {% if type == item.itemType %}selected="selected"{% endif %} value="{{type.name}}">{{type}}</option>
                                         {% endfor %}
                                       </select>
                                   {% if user.is_superuser %}
@@ -51,7 +51,7 @@
                                     <select class="text form-control" id="manufacturer" name="manufacturer">
                                         <option selected disabled hidden value=''></option>
                                       {% for manufacturer in manufacturers %}  
-                                        <option {% if manufacturer == item.manufacturer %}selected="selected"{% endif %} value="{{manufacturer.id}}">{{manufacturer}}</option>
+                                        <option {% if manufacturer == item.manufacturer %}selected="selected"{% endif %} value="{{manufacturer.name}}">{{manufacturer}}</option>
                                       {% endfor %}
                                     </select>
                                   {% if user.is_superuser %}
@@ -77,7 +77,7 @@
                                     <select class="text form-control" id="model" name="model">
                                         <option selected disabled hidden value=''></option>
                                       {% for model in models %}  
-                                        <option {% if model == item.model %}selected="selected"{% endif %} value="{{model.id}}">{{model}}</option>
+                                        <option {% if model == item.model %}selected="selected"{% endif %} value="{{model.name}}">{{model}}</option>
                                       {% endfor %}
                                     </select>
                                   {% if user.is_superuser %}

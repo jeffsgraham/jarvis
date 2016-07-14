@@ -3,6 +3,9 @@
 {% if not disable_add %}
     <button type="button" class="btn btn-primary btn-xs jarv-superscript" onclick="jarv_item_form2({% if room %}'/inventory/room/{{room.id}}/item/add/'{% else %}'/inventory/item/add/'{% endif %});">Add Item</button>
 {% endif %}
+{% if room.schedule_url %}
+    <a class="btn btn-success btn-xs jarv-superscript" href="{{room.schedule_url}}" target="_blank">Room Schedule</a>
+{% endif %}
 </h1>
 <div id="jarv-content-url" class="hidden">{{content_url}}</div>
 

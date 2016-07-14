@@ -37,6 +37,8 @@ class Room(models.Model):
     """
     number = models.CharField(max_length=10)
     building = models.ForeignKey('Building')
+    schedule_url = models.CharField(max_length=512, blank=True, null=True)
+
 
     def __str__(self):
         return self.building.abbrev + " " + self.number

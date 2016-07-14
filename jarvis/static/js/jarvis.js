@@ -69,7 +69,7 @@ function jarv_load_main_list() {
     //register searchform submission handler
     $('#jarv-search-form').submit(function(e) {
         e.preventDefault(); //prevent default action
-        jarv_get_content("/inventory/item/search/" + $("#jarv-search-box").val());
+        jarv_get_content("/inventory/item/search/" + $("#jarv-search-box").val() + "/");
     });
 }
 
