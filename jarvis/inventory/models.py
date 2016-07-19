@@ -106,8 +106,8 @@ class Attribute(models.Model):
 
 class Model(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    manufacturer = models.ForeignKey('Manufacturer', blank=True, null=True, to_field='name')
-    itemType = models.ForeignKey('Type', blank=True, null=True, to_field='name')
+    manufacturer = models.ForeignKey('Manufacturer', on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
+    itemType = models.ForeignKey('Type', on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
     partNumbers = ListField()
 
     #override objects manager with mongo specific manager
@@ -145,9 +145,9 @@ class Item(models.Model):
 
     """
     #Static Fields
-    itemType = models.ForeignKey('Type', on_delete='Unknown', to_field='name')
-    manufacturer = models.ForeignKey('Manufacturer', on_delete='Unknown', to_field='name')
-    model = models.ForeignKey('Model', on_delete='Unknown', to_field='name')
+    itemType = models.ForeignKey('Type', on_delete=models.PROTECT, to_field='name')
+    manufacturer = models.ForeignKey('Manufacturer', on_delete=models.PROTECT, to_field='name')
+    model = models.ForeignKey('Model', on_delete=models.PROTECT, to_field='name')
     created = models.DateTimeField(auto_now_add=True)
     room = models.ForeignKey('Room', null=True, blank=True, on_delete=models.SET_NULL)
     item = models.ForeignKey('self', null=True, blank=True, related_name="subItem", on_delete=models.SET_NULL)
