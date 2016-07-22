@@ -1,0 +1,18 @@
+--- basecompiler.py	2016-07-19 11:35:36.204901300 -0700
++++ basecompiler-patched.py	2016-07-19 11:31:30.484901300 -0700
+@@ -229,9 +229,12 @@
+         # is the parent's primary key, while the field the filter
+         # should consider is the child's foreign key field.
+         if column != field.column:
+-            if not field.primary_key:
+-                raise DatabaseError("This database doesn't support filtering "
+-                                    "on non-primary key ForeignKey fields.")
++            #Removed this conditional in Patch-1.8.mcdspatch as it is unnecessary in mongodb
++            #while no explicit support for filtering on non-primary key FKs
++            # exists, mongo will continue as expected without errors.
++            #if not field.primary_key:
++            #    raise DatabaseError("This database doesn't support filtering "
++            #                        "on non-primary key ForeignKey fields.")
+ 
+             field = (f for f in opts.fields if f.column == column).next()
+             assert field.rel is not None

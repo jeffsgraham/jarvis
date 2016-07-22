@@ -21,18 +21,18 @@ class ItemTestCase(TestCase):
     def test_simple_revision(self):
         #retrieve and alter computer item
         compType = Type.objects.get(name="Computer")
-        comp1 = Item.objects.get(itemType=compType)
+        comp1 = Item.objects.raw_query({'itemType_id':compType.name})[0]
         newValue = '10.221.248.231'
         comp1.attributes[self.key]= newValue
         comp1.save_with_revisions()
-        comp2 = Item.objects.get(itemType=compType)
+        comp2 = Item.objects.raw_query({'itemType_id':compType.name})[0]
         self.assertNotEqual(comp2.attributes[self.key], self.value, \
                 "Altered item == to previous state")
         
         #revert
         rev = ItemRevision.objects.get(item=comp2)
         comp2.revert(rev)
-        comp3 = Item.objects.get(itemType=compType)
+        comp3 = Item.objects.raw_query({'itemType_id':compType.name})[0]
         self.assertEqual(comp3.attributes[self.key], self.value, \
                 "reverted item != previous state")
 
@@ -42,11 +42,11 @@ class ItemTestCase(TestCase):
 
     def test_delete_revisions(self):
         #delete Item
-        computer = Item.objects.get(itemType=self.type_comp)
+        computer = Item.objects.raw_query({'itemType_id':self.type_comp.name})[0]
         computer.delete()
 
         #still exists in DB
-        c1 = Item.objects.get(itemType=self.type_comp)
+        c1 = Item.objects.raw_query({'itemType_id':self.type_comp.name})[0]
         self.assertTrue(c1.id == computer.id)
 
         #is set to active == false
@@ -58,15 +58,15 @@ class ItemTestCase(TestCase):
 
         #revert item
         c1.revert(rev)
-        c2 = Item.objects.get(itemType=self.type_comp)
+        c2 = Item.objects.raw_query({'itemType_id':self.type_comp.name})[0]
         self.assertTrue(c1.active == True)
 
 
     def test_complex_revision(self):
         #get items from DB
-        computer = Item.objects.get(itemType=self.type_comp)
+        computer = Item.objects.raw_query({'itemType_id':self.type_comp.name})[0]
         altered = copy.deepcopy(computer)
-        scaler = Item.objects.get(itemType=self.type_scaler)
+        scaler = Item.objects.raw_query({'itemType_id':self.type_scaler.name})[0]
         self.assertTrue(computer == altered)
 
         #alter item
@@ -91,9 +91,9 @@ class ItemTestCase(TestCase):
 
     def test_iterative_revision(self):
         #get items from DB
-        computer = Item.objects.get(itemType=self.type_comp)
+        computer = Item.objects.raw_query({'itemType_id':self.type_comp.name})[0]
         altered = copy.deepcopy(computer)
-        scaler = Item.objects.get(itemType=self.type_scaler)
+        scaler = Item.objects.raw_query({'itemType_id':self.type_scaler.name})[0]
         self.assertTrue(computer == altered)
 
         #alter item
@@ -138,8 +138,8 @@ class ItemTestCase(TestCase):
         self.assertTrue(len(revs) == 0)
   
     def test_missing_fkey_revisions(self):
-        computer = Item.objects.get(itemType=self.type_comp)
-        scaler = Item.objects.get(itemType=self.type_scaler)
+        computer = Item.objects.raw_query({'itemType_id':self.type_comp.name})[0]
+        scaler = Item.objects.raw_query({'itemType_id':self.type_scaler.name})[0]
 
         #alter item
         computer.item = scaler
@@ -153,7 +153,7 @@ class ItemTestCase(TestCase):
         scalerId = scaler.id #store scaler id for later comparison
         #do actual DB deletion (since Item.delete() is overloaded to not lose data
         super(Item, scaler).delete() 
-        self.assertTrue(len(Item.objects.filter(itemType=self.type_scaler, active=True)) == 0)
+        self.assertTrue(len(Item.objects.raw_query({'itemType_id':self.type_scaler.name, 'active':True})) == 0)
 
         #revert to old revision
         rev2 = ItemRevision.objects.filter(item=computer).order_by('-revised')[0]
