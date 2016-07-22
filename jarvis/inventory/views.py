@@ -79,20 +79,36 @@ class MainList(LoginRequiredMixin, TemplateView):
 class AjaxMainList(LoginRequiredMixin, View):
     """AJAX view that lists all active, unattached items. Used in main page view."""
     def get(self, request, *args):
-        items = Item.objects.filter(active=True, item=None, room=None)
+        #sort results by input
+        item_fields = [ f.name for f in Item._meta.fields ]
+        order_list = [] #list of fields to order_by
+        sort_fields = request.GET.get('sort_by','')
+        for rule in sort_fields.split(','):
+            #only use sort rules on fields that exist
+            if rule.replace('-','') in item_fields:
+                order_list.append(rule)
+        items = Item.objects.filter(active=True, item=None, room=None).order_by(*order_list)
         pagetitle = "Warehouse"
         content_url = request.META['PATH_INFO']
-        return render_to_response('ajax_room_view.html', locals())
+        return render_to_response('ajax_item_list.html', locals())
 
 
 class AjaxSearchItems(LoginRequiredMixin, View):
     """AJAX view that lists all active items that match the given search terms."""
     def get(self, request, *args):
-        items = Item.objects.raw_query({'$text': {'$search': self.args[0]}})
+        #sort results by input
+        item_fields = [ f.name for f in Item._meta.fields ]
+        order_list = [] #list of fields to order_by
+        sort_fields = request.GET.get('sort_by','')
+        for rule in sort_fields.split(','):
+            #only use sort rules on fields that exist
+            if rule.replace('-','') in item_fields:
+                order_list.append(rule)
+        items = Item.objects.raw_query({'$text': {'$search': self.args[0]}}).order_by(*order_list)
         pagetitle = "Results for " + self.args[0]
         content_url = request.META['PATH_INFO']
         disable_add = True
-        return render_to_response('ajax_room_view.html', locals())
+        return render_to_response('ajax_item_list.html', locals())
 
 class AjaxIPRangeList(LoginRequiredMixin, View):
     """AJAX view that lists saved IPRanges."""
@@ -121,13 +137,22 @@ class AjaxItemDetail(LoginRequiredMixin, View):
 
 class AjaxRoomView(LoginRequiredMixin, View):
     """AJAX View for room info requests. Lists all items in requested room."""
-    def get(self, request, *args):
-        room = get_object_or_404(Room, id=self.args[0])
-        items = room.item_set.filter(active=True, item=None)
+    def get(self, request, room_id, *args):
+        room = get_object_or_404(Room, id=room_id)#self.args[0])
+        #sort results by input
+        item_fields = [ f.name for f in Item._meta.fields ]
+        order_list = [] #list of fields to order_by
+        sort_fields = request.GET.get('sort_by','')
+        for rule in sort_fields.split(','):
+            #only use sort rules on fields that exist
+            if rule.replace('-','') in item_fields:
+                order_list.append(rule)
+        items = room.item_set.filter(active=True, item=None).order_by(*order_list)
+
         pagetitle = room.building.abbrev + " " + str(room.number)
-        
+
         content_url = request.META['PATH_INFO']
-        return render_to_response('ajax_room_view.html', locals())
+        return render_to_response('ajax_item_list.html', locals())
 
 class AjaxAttributeAdd(LoginRequiredMixin, View):
     """AJAX View for item attribute suggestions form."""
@@ -213,7 +238,7 @@ class AjaxMoveItem(LoginRequiredMixin, FormView):
         message = ""
         item = form.instance
         item_name = str(item.manufacturer) + " " + str(item.itemType)
-        room_name = str(item.room)
+        room_name = str(item.room or "Warehouse") #default to warehouse if room=None
         if form.has_changed():
             form.save(user=self.request.user)
             #build confirm message

@@ -37,6 +37,8 @@ class Room(models.Model):
     """
     number = models.CharField(max_length=10)
     building = models.ForeignKey('Building')
+    schedule_url = models.CharField(max_length=512, blank=True, null=True)
+
 
     def __str__(self):
         return self.building.abbrev + " " + self.number
@@ -72,15 +74,24 @@ class IPRange(models.Model):
 
 
 class Manufacturer(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
+
+    def cascade_name_change(self, old):
+        Item.objects.raw_update({'manufacturer_id':old.name},{'$set':{'manufacturer_id':self.name}})
+        Model.objects.raw_update({"manufacturer_id":old.name},{'$set':{"manufacturer_id":self.name}})
 
     def __str__(self):
         return self.name
 
 
 class Type(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
+    def cascade_name_change(self, old):
+        Item.objects.raw_update({'itemType_id':old.name},{'$set':{'itemType_id':self.name}})
+        Model.objects.raw_update({"itemType_id":old.name},{'$set':{"itemType_id":self.name}})
+
+        
     def __str__(self):
         return self.name
 
@@ -88,21 +99,24 @@ class Attribute(models.Model):
     """Stores Attribute Key suggestions for items.
     
     """
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
 class Model(models.Model):
-    name = models.CharField(max_length=50)
-    manufacturer = models.ForeignKey('Manufacturer', blank=True, null=True)
-    itemType = models.ForeignKey('Type', blank=True, null=True)
+    name = models.CharField(max_length=50, unique=True)
+    manufacturer = models.ForeignKey('Manufacturer', on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
+    itemType = models.ForeignKey('Type', on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
     partNumbers = ListField()
 
     #override objects manager with mongo specific manager
     #allows raw queries to mongodb
     #this breaks compatibility with other databases
     objects = MongoDBManager()
+
+    def cascade_name_change(self, old):
+        Item.objects.raw_update({'model_id':old.name},{'$set':{'model_id':self.name}})
 
     def __str__(self):
         return self.name
@@ -131,9 +145,9 @@ class Item(models.Model):
 
     """
     #Static Fields
-    itemType = models.ForeignKey('Type', on_delete='Unknown')
-    manufacturer = models.ForeignKey('Manufacturer', on_delete='Unknown')
-    model = models.ForeignKey('Model', on_delete='Unknown')
+    itemType = models.ForeignKey('Type', on_delete=models.PROTECT, to_field='name')
+    manufacturer = models.ForeignKey('Manufacturer', on_delete=models.PROTECT, to_field='name')
+    model = models.ForeignKey('Model', on_delete=models.PROTECT, to_field='name')
     created = models.DateTimeField(auto_now_add=True)
     room = models.ForeignKey('Room', null=True, blank=True, on_delete=models.SET_NULL)
     item = models.ForeignKey('self', null=True, blank=True, related_name="subItem", on_delete=models.SET_NULL)

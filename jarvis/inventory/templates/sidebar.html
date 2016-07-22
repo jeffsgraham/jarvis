@@ -17,10 +17,14 @@
 
     <h4>Buildings</h4>
     <ul id="jarv-building-list" class="nav nav-sidebar">
+        <li id="jarv-sidebar-warehouse" class="jarv-sidebar-building active">
+            <a onclick="jarv_get_content('/inventory/item/all/');" href="#">Warehouse</a>
+            <ul class="nav nav-sidebar collapse in"></ul>
+        </li>
         {% for building in buildings %}
-        <li class="jarv-sidebar-building{% if forloop.first %} active{% endif %}">
+        <li class="jarv-sidebar-building">
             <a href="#" class="jarv-hover-expand">{{ building.name }}</a>
-            <ul id="jarv-room-list-{{building.id}}" class="nav nav-sidebar collapse {% if forloop.first %}in{% endif %}" {% if not forloop.first %}style="height:0px;"{% endif %}>
+            <ul id="jarv-room-list-{{building.id}}" class="nav nav-sidebar collapse" style="height:0px;">
                 {% for room in rooms %}
                 {% if room.building_id == building.id %}
                 <li class="jarv-sidebar-room" id="{{room.id}}" description="{{room}}"><a onclick="jarv_get_content('/inventory/room/{{room.pk}}/item/all/');" href="#">{{room.number}}</a></li>
