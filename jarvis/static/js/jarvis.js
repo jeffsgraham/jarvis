@@ -114,7 +114,7 @@ function jarv_ajax_error(jqXHR, textStatus, errorThrown, message)
         '<div id="jarv-error-expand" class="pull-right"><a>Toggle Error Details</a></div>' +
         '<div class="collapse pre-scrollable" style="height:0px;">' +
         '<h2>Error Details</h2>' +
-        jqXHR.responseText +
+        (typeof jqXHR.responseText !== 'undefined'? jqXHR.responseText : textStatus) +
         '</div>' +
         '</div>';
     $('#jarv-alerts').html(banner);
@@ -369,96 +369,106 @@ function jarvis_serialize_item_form(form)
     return data;
     
 }
+//reset item form timeout
+//Used by jarv_item_form2() to prevent duplicate new items being created.
+function jarv_reset_iftimeout()
+{
+    //reset item for timeout
+    window.item_form_timeout = null;
+}
 
 //opens dialog to edit or add an item
 //requires a url to get and post form data from/to
 function jarv_item_form2(url, initial_data)
 {
-    $.get(url, function(data) {
-        //append dialog to content div
-        $('body').append(data);
-        
-        var dialog = $('#item-form-modal');
+    //prevent multiple requests for item form
+    var timeout_duration = 2000; //timeout duration in ms
+    if (window.item_form_timeout != null)
+    {
+        return; //not done with previous request
+    }
+    //set timer to prevent rapid clicks from opening multiple forms if latency is high
+    window.item_form_timeout = window.setTimeout(jarv_reset_iftimeout, timeout_duration);
+
+    //get form html
+    $.ajax({
+        url:url,
+        timeout: timeout_duration, //important to prevent duplicate submissions
+        success: function(data, textStatus, jqXHR) {
+            //remove any preexisting item forms 
+            // (useful in case latency on network connection)
+            var container = $('#jarv-modal-container');
+            container.empty();
+
+            //append dialog to content div
+            container.append(data);
+            
+            var dialog = $('#item-form-modal');
 
 
-        //register dialog hide handler
-        dialog.on('hidden.bs.modal', function(e) {
-            //remove dialog
-            dialog.remove();
-        });
-
-        //register save button handler
-        $('#item-form-save').on('click', function() {
-            $('#jarv-item-form').submit();
-        });
-
-        //launch modal
-        dialog.modal({
-            show: true,
-            backdrop: true,
-            keyboard: true
-        });
-
-        //register add_attribute button action
-        $('#jarv-add-attribute').on('click', function(){
-            $.get("inventory/item/attribute/add/", function(data) {
-              $('#jarv-add-attr-cell').before(data);
+            //register dialog hide handler
+            dialog.on('hidden.bs.modal', function(e) {
+                //remove dialog
+                dialog.remove();
             });
-        });
-        
-        //set initial item data if any
-        if(initial_data) {
-            if(initial_data.itemType){
-                $(dialog).find('select#itemType').val(initial_data.itemType);
-            }
-            if(initial_data.model){
-                $(dialog).find('select#model').val(initial_data.model);
-            }
-            if(initial_data.manufacturer){
-                $(dialog).find('select#manufacturer').val(initial_data.manufacturer);
-            }
-            $.each(initial_data.attributes, function(key, value){
+
+            //register save button handler
+            $('#item-form-save').one('click', function() {
+                $('#jarv-item-form').submit();
+            });
+
+            //launch modal
+            dialog.modal({
+                show: true,
+                backdrop: true,
+                keyboard: true
+            });
+
+            //register add_attribute button action
+            $('#jarv-add-attribute').on('click', function(){
                 $.get("inventory/item/attribute/add/", function(data) {
-                    $('#jarv-add-attr-cell').before(data);
-                    $('.jarv-edit-attribute:last').find('select.item-attr-key').val(key)
-                    $('.jarv-edit-attribute:last').find('input.item-attr-value').val(value)
+                  $('#jarv-add-attr-cell').before(data);
                 });
-
             });
+
+            //register form submission handler
+            $('#jarv-item-form').submit(function(e) {
+                var postData = jarvis_serialize_item_form($(this));//$(this).serializeArray();
+                var formURL = $(this).attr("action");
+                $.ajax({
+                    url: formURL,
+                    type: "POST",
+                    data: postData,
+                    success: function(data, textStatus, jqXHR) {
+                        if(data == "Saved")
+                        {
+                            //edit complete, close dialog
+                            dialog.modal('hide');
+
+                            //update content frame with new data
+                            //note:every item view contains a hidden content url to be reloaded after changes
+                            jarv_get_content($('#jarv-content-url').text());
+                        }
+                        else
+                        {
+                            //append error data to template
+                            $('#jarv-error-message').empty(data);
+                            $('#jarv-error-message').append(data);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                       document.write(jqXHR.responseText); //TODO: user friendly error
+                    }
+                });
+                e.preventDefault(); //prevent default action
+            });
+        },
+        error:function(jqXHR, textStatus, errorThrown) {
+            if (errorThrown == "timeout") {
+                var message = "Connection to server timed out. Please try again or contact your server administrator for support.";
+                jarv_ajax_error(jqXHR, textStatus, errorThrown, message);
+            }
         }
-
-        //register form submission handler
-        $('#jarv-item-form').submit(function(e) {
-            var postData = jarvis_serialize_item_form($(this));//$(this).serializeArray();
-            var formURL = $(this).attr("action");
-            $.ajax({
-                url: formURL,
-                type: "POST",
-                data: postData,
-                success: function(data, textStatus, jqXHR) {
-                    if(data == "Saved")
-                    {
-                        //edit complete, close dialog
-                        dialog.modal('hide');
-
-                        //update content frame with new data
-                        //note:every item view contains a hidden content url to be reloaded after changes
-                        jarv_get_content($('#jarv-content-url').text());
-                    }
-                    else
-                    {
-                        //append error data to template
-                        $('#jarv-error-message').empty(data);
-                        $('#jarv-error-message').append(data);
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                   document.write(jqXHR.responseText); 
-                }
-            });
-            e.preventDefault(); //prevent default action
-        });
-        
     });
 }
 
