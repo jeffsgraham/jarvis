@@ -122,11 +122,19 @@ class Model(models.Model):
         return self.name
 
 class LinkStatus(models.Model):
-    """tracks network link uptime by storing changes in link status 
+    """tracks network uptime by storing changes in icmp echo responses
 
     """
-    timestamp = models.DateTimeField(auto_now_add=True)
+    first_checked = models.DateTimeField(auto_now_add=True)
+    last_checked = models.DateTimeField(auto_now_add=True)
     up = models.BooleanField()
+
+    def __str__(self):
+        if self.up:
+            return "Link Active"
+        else:
+            return "Link Inactive"
+
 
 class Item(models.Model):
     """Stores all information about a single item.
@@ -189,6 +197,21 @@ class Item(models.Model):
             return "1month"
         else:
             return "new"
+
+    def link_update(self, link):
+        """
+            Updates link status of item and stores data in uptime list
+        """
+        if not self.uptime:
+            #initialize list
+            self.uptime = [LinkStatus(up=link)]
+        elif self.uptime[-1].up == link:
+            #just update last entry
+            self.uptime[-1].last_checked = datetime.now()
+        else:
+            #add new uptime entry to end of list
+            self.uptime.append(LinkStatus(up=link))
+        self.save_without_revisions()
 
     def save_without_revisions(self, *args, **kwargs):
         super(Item, self).save(*args, **kwargs)
