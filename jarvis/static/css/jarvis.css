@@ -298,4 +298,9 @@ a.boxclose{
 }
 html, body, #jarv-page { height: 100%; }
 body > #jarv-page { height: auto; min-height: 95%; }
-
+.jarv-online {
+    color: #4cae4c;
+}
+.jarv-offline {
+    color: #d43f3a;
+}

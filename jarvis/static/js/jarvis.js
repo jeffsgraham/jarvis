@@ -339,6 +339,7 @@ function jarv_get_content(url, placeholder)
                 });
             }
         });
+
     });
 
 }

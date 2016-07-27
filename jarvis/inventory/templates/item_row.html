@@ -3,7 +3,7 @@
     <td class="jarv-draggable-helper"><div class="jarv-draggable-handle pull-left"><img src="{% static 'img/dndhandle-icon.gif' %}" /></div>{{item.itemType}}</td>
     <td>{{item.manufacturer}}</td>
     <td>{{item.model}}</td>
-    <td class="hidden-xs hidden-sm hidden-md">{{item.attributes|get:"IP Address"}}</td>
+    <td class="hidden-xs hidden-sm hidden-md">{% link_status item.uptime %} {{item.attributes|get:"IP Address"}}</td>
     <td class="hidden-xs hidden-sm hidden-md">{{item.attributes.Serial}}</td>
     <td class="hidden-xs hidden-sm">{{item.age}}</td>
     <td class="jarv-actions-cell">

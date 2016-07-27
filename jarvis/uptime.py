@@ -40,7 +40,7 @@ class Worker(Thread):
             item = self.queue.get()
             ip = item.attributes['IP Address']
             link = JarvisIPUtilities.ping(ip)
-            item.link_update(link) #store current link state
+            item.link_update(link==True) #store current link state
             result = "Online" if link else "Offline"
             self.results[result].append(ip)
             self.queue.task_done() #notify queue that task is complete
@@ -51,4 +51,4 @@ class Worker(Thread):
 if __name__ == '__main__':
     hosts = Item.objects.raw_query({'attributes.IP Address':{'$exists':True}})
     ping = Uptime(hosts, 20)
-    print ping.start()
+    ping.start()
