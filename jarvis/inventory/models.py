@@ -1,15 +1,16 @@
 from django.db import models
 from django.conf import settings
-from djangotoolbox.fields import EmbeddedModelField, ListField, DictField, SetField
-from copy import copy, deepcopy
-from datetime import datetime
+from djangotoolbox.fields import EmbeddedModelField, ListField, DictField
+from datetime import datetime, timedelta
 from inventory.fields import DictFormField
 from django_mongodb_engine.contrib import MongoDBManager
-from collections import OrderedDict
 from jarvis_utilities import JarvisIPUtilities
 
 
 class DictModelField(DictField):
+    """DictField with implemented formfield
+
+    """
     def formfield(self, **kwargs):
         return models.Field.formfield(self, DictFormField, **kwargs)
 
@@ -23,7 +24,7 @@ class Building(models.Model):
     """
     name = models.CharField(max_length=50)
     abbrev = models.CharField(max_length=3)
-    
+
     def __str__(self):
         return self.name + " (" + self.abbrev + ")"
 
@@ -46,7 +47,8 @@ class Room(models.Model):
 class IPRange(models.Model):
     base = models.GenericIPAddressField(protocol='IPv4')
     mask = models.IntegerField()
-    building = models.ForeignKey('Building', blank=True, null=True, on_delete=models.SET_NULL)
+    building = models.ForeignKey('Building', blank=True, null=True,
+            on_delete=models.SET_NULL)
 
     def __str__(self):
         ipstring = str(self.base) + "/" + str(self.mask)
@@ -77,8 +79,11 @@ class Manufacturer(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def cascade_name_change(self, old):
-        Item.objects.raw_update({'manufacturer_id':old.name},{'$set':{'manufacturer_id':self.name}})
-        Model.objects.raw_update({"manufacturer_id":old.name},{'$set':{"manufacturer_id":self.name}})
+        Item.objects.raw_update({'manufacturer_id':old.name},
+                {'$set':{'manufacturer_id':self.name}})
+
+        Model.objects.raw_update({"manufacturer_id":old.name},
+                {'$set':{"manufacturer_id":self.name}})
 
     def __str__(self):
         return self.name
@@ -88,16 +93,19 @@ class Type(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def cascade_name_change(self, old):
-        Item.objects.raw_update({'itemType_id':old.name},{'$set':{'itemType_id':self.name}})
-        Model.objects.raw_update({"itemType_id":old.name},{'$set':{"itemType_id":self.name}})
+        Item.objects.raw_update({'itemType_id':old.name},
+                {'$set':{'itemType_id':self.name}})
 
-        
+        Model.objects.raw_update({"itemType_id":old.name},
+                {'$set':{"itemType_id":self.name}})
+
+
     def __str__(self):
         return self.name
 
 class Attribute(models.Model):
     """Stores Attribute Key suggestions for items.
-    
+
     """
     name = models.CharField(max_length=50, unique=True)
 
@@ -106,8 +114,10 @@ class Attribute(models.Model):
 
 class Model(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    manufacturer = models.ForeignKey('Manufacturer', on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
-    itemType = models.ForeignKey('Type', on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
+    manufacturer = models.ForeignKey('Manufacturer',
+            on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
+    itemType = models.ForeignKey('Type',
+            on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
     partNumbers = ListField()
 
     #override objects manager with mongo specific manager
@@ -116,17 +126,26 @@ class Model(models.Model):
     objects = MongoDBManager()
 
     def cascade_name_change(self, old):
-        Item.objects.raw_update({'model_id':old.name},{'$set':{'model_id':self.name}})
+        Item.objects.raw_update({'model_id':old.name},
+                {'$set':{'model_id':self.name}})
 
     def __str__(self):
         return self.name
 
 class LinkStatus(models.Model):
-    """tracks network link uptime by storing changes in link status 
+    """tracks network uptime by storing changes in icmp echo responses
 
     """
-    timestamp = models.DateTimeField(auto_now_add=True)
-    up = models.BooleanField()
+    first_checked = models.DateTimeField(auto_now_add=True)
+    last_checked = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField()
+
+    def __str__(self):
+        if self.status:
+            return "Link Active"
+        else:
+            return "Link Inactive"
+
 
 class Item(models.Model):
     """Stores all information about a single item.
@@ -137,9 +156,9 @@ class Item(models.Model):
         model (CharField): The model of equipment this item describes.
         created (DateTimeField): When this item was added to inventory.
         room (ForeignKey): The room (if any) this item resides in.
-        item (ForeignKey): The parent item this item is attached to. 
+        item (ForeignKey): The parent item this item is attached to.
             In the case of a video card this would point to the parent computer.
-        active (BooleanField): Whether this item is an active record or 
+        active (BooleanField): Whether this item is an active record or
             historical data.
         attributes (DictField): Item attributes i.e. {Serial: 1234, IP: 1.2.3.4}
 
@@ -189,6 +208,23 @@ class Item(models.Model):
             return "1month"
         else:
             return "new"
+
+
+    def link_update(self, link):
+        """
+            Updates link status of item and stores data in uptime list
+        """
+        link = link == True #prevent data corruption by converting to bool
+        if not self.uptime:
+            #initialize list
+            self.uptime = [LinkStatus(status=link)]
+        elif self.uptime[-1].status == link:
+            #just update last entry
+            self.uptime[-1].last_checked = datetime.now()
+        else:
+            #add new uptime entry to end of list
+            self.uptime.append(LinkStatus(status=link))
+        self.save_without_revisions()
 
     def save_without_revisions(self, *args, **kwargs):
         super(Item, self).save(*args, **kwargs)
