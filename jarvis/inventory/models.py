@@ -387,7 +387,7 @@ class Item(models.Model):
                 elif key == 'room':
                     if(value is not None):
                         try:
-                            self.room = Room.objects.get(id=value)
+                            self.room = Room.objects.get(pk=value)
                         except Room.DoesNotExist:
                             self.room = None
                     else:
@@ -397,7 +397,7 @@ class Item(models.Model):
                     if(value is not None):
                         #catch case where item no longer exists
                         try:
-                            self.item = Item.objects.get(id=value)
+                            self.item = Item.objects.get(pk=value)
                         except Item.DoesNotExist:
                             self.item = None
                     else:
@@ -480,13 +480,13 @@ class ItemRevision(models.Model):
             elif key == 'model':
                 actions.append("Changed Model from " + value)
             elif key == 'room':
-                room = Room.objects.filter(id=value).first()
+                room = Room.objects.filter(pk=value).first()
                 if not room:
                     room = "Warehouse"
                 actions.append("Moved Item from "+ str(room))
             elif key == 'item':
                 if value is not None:
-                    item = Item.objects.filter(id=value).first()
+                    item = Item.objects.filter(pk=value).first()
                     actions.append("Detached Item from "+ str(item))
                 else:
                     actions.append("Attached Item")
