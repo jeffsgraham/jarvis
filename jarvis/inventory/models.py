@@ -1,17 +1,16 @@
-from django.db import models
-from django.conf import settings
-from djangotoolbox.fields import EmbeddedModelField, ListField, DictField, SetField
-from copy import copy, deepcopy
 from datetime import datetime
+from djongo import models
+#this is used for linking item revisions to the users who initiated them
+from django.conf import settings
 from inventory.fields import DictFormField
-from django_mongodb_engine.contrib import MongoDBManager
-from collections import OrderedDict
-from jarvis_utilities import JarvisIPUtilities
 
 
-class DictModelField(DictField):
+class DictModelField(models.DictField):
+    """Provides formfield functionality for DictField
+    """
     def formfield(self, **kwargs):
         return models.Field.formfield(self, DictFormField, **kwargs)
+
 
 class Building(models.Model):
     """stores relevant information about buildings.
@@ -21,8 +20,9 @@ class Building(models.Model):
         abbrev (CharField): Buiding's name abbreviated to three letters.
 
     """
+    _id = models.ObjectIdField()
     name = models.CharField(max_length=50)
-    abbrev = models.CharField(max_length=3)
+    abbrev = models.CharField(max_length=3, unique=True)
     
     def __str__(self):
         return self.name + " (" + self.abbrev + ")"
@@ -35,45 +35,20 @@ class Room(models.Model):
         building (ForeignKey): The building this room is in.
 
     """
+    _id = models.ObjectIdField()
     number = models.CharField(max_length=10)
-    building = models.ForeignKey('Building')
+    building = models.ForeignKey('Building', on_delete=models.PROTECT, to_field='abbrev')
     schedule_url = models.CharField(max_length=512, blank=True, null=True)
 
 
     def __str__(self):
         return self.building.abbrev + " " + self.number
-
-class IPRange(models.Model):
-    base = models.GenericIPAddressField(protocol='IPv4')
-    mask = models.IntegerField()
-    building = models.ForeignKey('Building', blank=True, null=True, on_delete=models.SET_NULL)
-
-    def __str__(self):
-        ipstring = str(self.base) + "/" + str(self.mask)
-        if self.building:
-            ipstring += " in " + str(self.building)
-        return ipstring
-
-    def sweep(self):
-        results = JarvisIPUtilities.sweep_range(self.base, self.mask)
-        for ip, data in results.items():
-            #check database for item
-            items = Item.objects.raw_query({'attributes.IP Address': str(ip)})
-            if items.exists() == 1:
-                #one item found, check against current data
-                data["items"] = items[0]
-            elif items.exists() > 1:
-                #two or more items found. Possible IP conflict raise warning
-                #TODO raise warning
-                data["items"] = items[0]
-            else:
-                #no match found
-                data["items"] = None
-
-        return results
-
+    
+    class Meta:
+        ordering = ['building','number']
 
 class Manufacturer(models.Model):
+    _id = models.ObjectIdField()
     name = models.CharField(max_length=50, unique=True)
 
     def cascade_name_change(self, old):
@@ -85,6 +60,7 @@ class Manufacturer(models.Model):
 
 
 class Type(models.Model):
+    _id = models.ObjectIdField()
     name = models.CharField(max_length=50, unique=True)
 
     def cascade_name_change(self, old):
@@ -99,21 +75,22 @@ class Attribute(models.Model):
     """Stores Attribute Key suggestions for items.
     
     """
+    _id = models.ObjectIdField()
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
 class Model(models.Model):
+    _id = models.ObjectIdField()
     name = models.CharField(max_length=50, unique=True)
     manufacturer = models.ForeignKey('Manufacturer', on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
     itemType = models.ForeignKey('Type', on_delete=models.DO_NOTHING, blank=True, null=True, to_field='name')
-    partNumbers = ListField()
+    partNumbers = models.ListField(default=[], blank=True)
 
-    #override objects manager with mongo specific manager
+    #override objects manager with djongo manager
     #allows raw queries to mongodb
-    #this breaks compatibility with other databases
-    objects = MongoDBManager()
+    objects = models.DjongoManager()
 
     def cascade_name_change(self, old):
         Item.objects.raw_update({'model_id':old.name},{'$set':{'model_id':self.name}})
@@ -121,12 +98,6 @@ class Model(models.Model):
     def __str__(self):
         return self.name
 
-class LinkStatus(models.Model):
-    """tracks network link uptime by storing changes in link status 
-
-    """
-    timestamp = models.DateTimeField(auto_now_add=True)
-    up = models.BooleanField()
 
 class Item(models.Model):
     """Stores all information about a single item.
@@ -144,7 +115,9 @@ class Item(models.Model):
         attributes (DictField): Item attributes i.e. {Serial: 1234, IP: 1.2.3.4}
 
     """
+    
     #Static Fields
+    _id = models.ObjectIdField()
     itemType = models.ForeignKey('Type', on_delete=models.PROTECT, to_field='name')
     manufacturer = models.ForeignKey('Manufacturer', on_delete=models.PROTECT, to_field='name')
     model = models.ForeignKey('Model', on_delete=models.PROTECT, to_field='name')
@@ -153,20 +126,89 @@ class Item(models.Model):
     item = models.ForeignKey('self', null=True, blank=True, related_name="subItem", on_delete=models.SET_NULL)
     active = models.BooleanField(default=True)
 
-    #tracks network link uptime by storing changes in link status 
-    uptime = ListField(EmbeddedModelField('LinkStatus'), null=True, blank=True)
-
     #Dynamic Fields
-    attributes = DictModelField(null=True, blank=True)
-
+    attributes = DictModelField(default={}, blank=True)
+    
     #get only active subitems
     def activeSubItems(self):
         return self.subItem.filter(active=True)
+    
+    @classmethod
+    def guessFromSerial2(cls, serial_string):
+        """ take 2"""
+        cursor = Item.objects.mongo_find({
+            "attributes.Serial": {"$regex": "^{0}.+".format(serial_string[0])},
+            "$where": "this.attributes.Serial.length == " + str(len(serial_string)),
+        })
 
-    #override objects manager with mongo specific manager
+        def getConfidence(one, two):
+            """returns ratio of sequential matching characters between two strings"""
+            length = len(one)
+            assert length > 0
+            assert length == len(two)
+            assert one[0] == two[0]
+            
+            count = 1
+            for i in range(1, length):
+                if one[i] == two[i]:
+                    count += 1
+                else:
+                    break
+            return count/length
+        
+        matches = {}
+        for item in cursor:
+            model = item['model_id']
+            confidence = getConfidence(serial_string, item['attributes']['Serial'])
+            if not model in matches or matches[model]['confidence'] < confidence:
+                matches[model] = {
+                    'confidence': confidence,
+                    'manufacturer': item['manufacturer_id'],
+                    'itemType': item['itemType_id'],
+                    'model': model
+                }
+        # return sorted results
+        return [v for k, v in sorted(matches.items(), key=lambda x: x[1]['confidence'], reverse=True)]
+
+
+    @classmethod
+    def guessFromSerial(cls, serial_string, room=None):
+        """
+        Makes an educated guess at what type, model, manufacturer a given
+         serial number should be based on existing item entries.
+
+        Returns a new Item instance with suggested values, or None if a guess
+         is impossible to make
+        """
+        #make query for all items staring with the first 2 characters of 
+        # serial_string and matching the length of serial_string
+        regex_string = '^{0}.{{{1}}}$'.format(serial_string[:2], len(serial_string)-2)
+        matches = cls.objects.mongo_find({'attributes.Serial':{'$regex':regex_string}})
+
+        # find most common model
+        models = [match['model_id'] for match in matches]
+        if models:
+            most_common = max(set(models), key=models.count)
+
+            # use most common model's manufacturer and itemType relationship to create an Item instance
+            model = Model.objects.filter(name=most_common).first()
+            if model:
+                print(model)
+                print(model.manufacturer)
+                print(model.manufacturer_id)
+                return cls(
+                    model=model,
+                    manufacturer=model.manufacturer,
+                    itemType=model.itemType,
+                    room=room,
+                    attributes={'Serial': serial_string}
+                )
+        # if no similar items are found, return None
+        return None
+
+    #override objects manager with djongo manager
     #allows raw queries to mongodb
-    #this breaks compatibility with other databases
-    objects = MongoDBManager()
+    objects = models.DjongoManager()
 
     #Computed Fields
     @property
@@ -178,8 +220,8 @@ class Item(models.Model):
 
         """
         months = ((datetime.now() - self.created).days) / 30
-        years = months / 12
-        months = months % 12
+        years = int(months / 12)
+        months = int(months % 12)
         #don't clutter output with 0 years
         if years > 0:
             return str(years) + "yrs, " + str(months) + "mo"
@@ -190,10 +232,58 @@ class Item(models.Model):
         else:
             return "new"
 
+    @classmethod
+    def from_pymongo(cls, _id=None, score=None, *args, **kwargs):
+        """creates Item instance from pymongo raw query result"""
+        return cls(*args, **kwargs)
+
+    @classmethod
+    def search(cls, search_term, sort_order=[]):
+        """
+        search_term (string): the string to search for
+        sort_order (list(set(field_name, direction))): A list of sets denoting the requested sorting fields and directions for results
+
+        returns a list of Items matching the search term
+        """
+
+        #check that sort order fields are valid
+        item_fields = {
+            field.name:field.many_to_one 
+            for field in cls._meta.fields
+        }
+        def convert_rel(pair):
+            """Helper function for converting relational field names by appending '_id'"""
+            return (pair[0] + '_id', pair[1]) if item_fields[pair[0]] else pair
+        
+        ## filters out any fields that don't exist in the Item class and appends '_id' to relational fields
+        sort_list = [convert_rel(pair) for pair in sort_order if pair[0] in item_fields]
+        
+        # last sort field is how well item matched the search term
+        sort_list.append(('score', {'$meta': 'textScore'}))
+
+        # build the search term for pymongo
+        querydict = {
+            '$text': {
+                '$search': search_term
+            }
+        }
+        # do the search and return the result
+        results = [
+            Item.from_pymongo(**item_dict)
+            for item_dict in Item.objects.mongo_find(
+                querydict, 
+                {'score': {'$meta': 'textScore'}}
+            ).sort(sort_list)
+        ]
+
+        return results
+
     def save_without_revisions(self, *args, **kwargs):
+        """Expose standard save() method for use"""
         super(Item, self).save(*args, **kwargs)
 
     def save(self, *args, **kwargs):
+        """Override default save() method in order to save item revision as well"""
         self.save_with_revisions(*args, **kwargs)
 
     def save_with_revisions(self, user=None, *args, **kwargs):
@@ -204,6 +294,14 @@ class Item(models.Model):
 
         """
 
+        # if no user has been passed as "to blame" 
+        # check model instance for a "blame" user
+        if not user:
+            try:
+                user = self.blame
+            except AttributeError:
+                pass
+        
         #get old version of document
         old = Item.objects.filter(pk=self.pk)
         
@@ -231,26 +329,26 @@ class Item(models.Model):
                     revision.changes['model'] = old.model.name
 
                 #store old attributes that have been removed or changed
-                for key, value in old.attributes.iteritems():
+                for key, value in old.attributes.items():
                     if not (key in self.attributes and self.attributes[key] == value):
                         revision.changes[key] = value
 
                 #store newly aquired attributes as null
-                for key, value in self.attributes.iteritems():
+                for key, value in self.attributes.items():
                     if not key in old.attributes:
                         revision.changes[key] = None
 
                 #store room
                 if(old.room != self.room):
                     if(old.room is not None):
-                        revision.changes['room'] = old.room.id
+                        revision.changes['room'] = old.room.pk
                     else:
                         revision.changes['room'] = None
 
                 #store item attachment
                 if(old.item != self.item):
                     if(old.item is not None):
-                        revision.changes['item'] = old.item.id
+                        revision.changes['item'] = old.item.pk
                     else:
                         revision.changes['item'] = None
                 
@@ -264,7 +362,7 @@ class Item(models.Model):
         #save Item instance
         self.save_without_revisions(*args, **kwargs)
 
-  
+
     def revert(self, revision):
         """Revert item to state described in specified ItemRevision.
 
@@ -278,7 +376,7 @@ class Item(models.Model):
         for rev in revisions:
 
             #revert to this revision
-            for key, value in rev.changes.iteritems():
+            for key, value in rev.changes.items():
                 #handle static fields
                 if key == 'itemType':
                     self.itemType = Type.objects.get_or_create(name=value)[0]
@@ -360,15 +458,20 @@ class ItemRevision(models.Model):
         changes (DictField): The changes described by this revision.
 
     """
-    item = models.ForeignKey(Item)
+    _id = models.ObjectIdField()
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
     revised = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
-    changes = DictField() 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.PROTECT)
+    changes = models.DictField(default={})
 
     def action_taken(self):
-        actions = []
+        """Returns a list of the actions (changes) that were performed in this revision
 
-        for key, value in self.changes.iteritems():
+        Used primarily for displaying details of this revision to users.
+        """
+        actions = []
+        
+        for key, value in self.changes.items():
             #handle static fields
             if key == 'itemType':
                 actions.append("Changed Type from " + value)
@@ -388,12 +491,14 @@ class ItemRevision(models.Model):
                 else:
                     actions.append("Attached Item")
             elif key == 'active':
-                if value == 'active':
+                if value == 'active': #Fixme this is a boolean value, not a string. should be if not value: ...
                     actions.append("Restored Item")
                 else:
                     actions.append("Deleted Item")
             elif value is None:
                 actions.append("Added Attribute " + key)
+            elif key in self.item.attributes:
+                actions.append("Changed Attribute from " + key + ": " + value)
             else:
                 actions.append("Removed Attribute " + key + ": " + value)
         return actions
@@ -404,7 +509,7 @@ class ItemRevision(models.Model):
         if not isinstance(compare, ItemRevision):
             return False
         if self.revised == compare.revised and self.user == compare.user and \
-            self.item.id == compare.item.id and self.changes == compare.changes:
+            self.item.pk == compare.item.pk and self.changes == compare.changes:
             return True
         else:
             return False

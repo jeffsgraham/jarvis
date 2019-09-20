@@ -1,12 +1,18 @@
 {% load staticfiles %}
 <h1 class="page-header">{{pagetitle}}
 {% if not disable_add %}
-    <button type="button" class="btn btn-primary btn-xs jarv-superscript" onclick="jarv_item_form2({% if room %}'/inventory/room/{{room.id}}/item/add/'{% else %}'/inventory/item/add/'{% endif %});">Add Item</button>
+    <button type="button" class="btn btn-primary btn-xs jarv-superscript" onclick="jarv_item_form2({% if room %}'/inventory/room/{{room.pk}}/item/add/'{% else %}'/inventory/item/add/'{% endif %});">Add Item</button>
 {% endif %}
 {% if room.schedule_url %}
     <a class="btn btn-success btn-xs jarv-superscript" href="{{room.schedule_url}}" target="_blank">Room Schedule</a>
 {% endif %}
+{% if not disable_add %}
+<form id="jarv-quick-add-form" class="navbar-form">
+    <input type="text" id="jarv-quick-add-box" class="form-control" autocomplete="off" placeholder="Quick Add...">
+</form>
+{% endif %}
 </h1>
+
 <div id="jarv-content-url" class="hidden">{{content_url}}</div>
 
 
@@ -22,6 +28,9 @@
                 <th>
                     <a href="" onclick="jarv_toggle_sort(event,'model');">Model</a>{% if order_list.0 == "model" %}<span id="jarv-model-sort" class="sorted glyphicon glyphicon-chevron-down" aria-hidden="true"></span>{% else %}{% if order_list.0 == "-model" %}<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>{% endif %}{% endif %}
                 </th>
+                {% if show_location %}
+                <th class="hidden-xs hidden-sm hidden-md">Location</th>
+                {% endif %}
                 <th class="hidden-xs hidden-sm hidden-md">IP Address</th>
                 <th class="hidden-xs hidden-sm hidden-md">Serial</th>
                 <th class="hidden-xs hidden-sm">
@@ -33,12 +42,12 @@
         <tbody>
             {% for item in items %}
                 {% if not item.item_id %}
-                    <tr class="jarv-item-row{% if item.subItem.count > 0 %} jarv-parent-item{% endif %}" id="{{item.id}}" description="{{item}}">
+                    <tr class="jarv-item-row{% if item.subItem.count > 0 %} jarv-parent-item{% endif %}" id="{{item.pk}}" description="{{item}}">
                         {% include "item_row.html" %}
                     </tr>
                     {% if not hideSubItems %}
                         {% for subitem in item.activeSubItems %}
-                            <tr class="jarv-item-row jarv-subitem-row" id="{{subitem.id}}" parent_id="{{item.id}}" description="{{subitem}}">
+                            <tr class="jarv-item-row jarv-subitem-row" id="{{subitem.pk}}" parent_id="{{item.pk}}" description="{{subitem}}">
                                 {% include "item_row.html" with item=subitem %}
                             </tr>
                         {% endfor %}
@@ -47,7 +56,7 @@
             {% empty %}
                 <tr>
                     <td colspan="7" class="text-center">No Items Found{% if not disable_add %}, Add Item 
-                        <button type="button" class="btn btn-primary btn-circle" onclick="jarv_item_form2('/inventory/room/{{room.id}}/item/add/')"><span class="glyphicon glyphicon-plus"></span></button>{% endif %}
+                        <button type="button" class="btn btn-primary btn-circle" onclick="jarv_item_form2('/inventory/room/{{room.pk}}/item/add/')"><span class="glyphicon glyphicon-plus"></span></button>{% endif %}
                     </td>
                 </tr>
             {% endfor %}

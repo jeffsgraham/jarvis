@@ -1,3 +1,7 @@
+#jarv-quick-add-form {
+    display: inline-block;
+}
+
 .building-list-item {
   padding: .5em 0em .5em 0em !important;
 }
@@ -260,6 +264,7 @@ a.boxclose{
 }
 .jarv-split-button {
   width: 100%;
+  display: flex;
 }
 
 .jarv-detail-pane {

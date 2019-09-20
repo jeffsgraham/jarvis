@@ -151,6 +151,12 @@ function jarv_get_content(url, placeholder)
             });
         });
 
+        //register quickaddform submission handler
+        $('#jarv-quick-add-form').submit(function(e) {
+            e.preventDefault(); //prevent default action
+            jarv_quick_add($("#jarv-quick-add-box").val());
+        });
+
 
         //setup draggable
         $('.jarv-item-row').draggable({
@@ -343,6 +349,17 @@ function jarv_get_content(url, placeholder)
 
 }
 
+//quick add form preparation
+function jarv_quick_add(serial){
+    
+    $.getJSON('/api/suggest/?serial=' + serial).done((data)=> {
+        data.serial = serial
+        console.log(data)
+        jarv_item_form2('/inventory/item/add/', data);
+    })
+
+    
+}
 
 //serializes form data for submission
 function jarvis_serialize_item_form(form)
@@ -417,6 +434,20 @@ function jarv_item_form2(url, initial_data)
                 $('#jarv-item-form').submit();
             });
 
+            //populate initial_data
+            if (initial_data && initial_data.results.length > 0) {
+                console.log('loading initial data')
+                $('select[name="itemType"]').val(initial_data.results[0].itemType)
+                $('select[name="model"]').val(initial_data.results[0].model)
+                $('select[name="manufacturer"]').val(initial_data.results[0].manufacturer)
+                $.get("inventory/item/attribute/add/", function(data) {
+                    $('#jarv-add-attr-cell').before(data);
+                    $('.item-attr-key').first().val('Serial')
+                    $('.item-attr-value').first().val(initial_data.serial)
+                  });
+                
+            }
+            
             //launch modal
             dialog.modal({
                 show: true,

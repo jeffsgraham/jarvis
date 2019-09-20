@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from models import *
+from inventory.models import *
 
 class CascadeNameChangeForm(forms.ModelForm):
     #override save to update related objects when name changes
@@ -28,7 +28,7 @@ class CascadeNameChangeAdmin(admin.ModelAdmin):
     form = CascadeNameChangeForm
 
 class ItemAdmin(admin.ModelAdmin):
-    exclude = ('attributes','uptime',)
+    exclude = ('attributes',)
     list_display = ('itemType', 'manufacturer', 'model', 'room', 'getSerial', 'getIPAddress')
 
     def getSerial(self, item):
@@ -43,7 +43,6 @@ admin.site.register(Type, CascadeNameChangeAdmin)
 admin.site.register(Model, ItemModelAdmin)
 admin.site.register(Manufacturer, CascadeNameChangeAdmin)
 admin.site.register(Attribute)
-admin.site.register(IPRange)
 admin.site.register(Building)
 admin.site.register(Room)
 admin.site.register(Item, ItemAdmin)

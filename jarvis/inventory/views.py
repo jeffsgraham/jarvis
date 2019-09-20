@@ -1,65 +1,18 @@
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render_to_response
+#from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
 from django.views.generic.base import View
-from django.views.generic import ListView, FormView, TemplateView
-from django.contrib.auth.views import login as django_login
-import json
-from models import *
-from forms import *
-
-#Mixins Here
-
-class LoginRequiredMixin(object):
-    """Requires a logged in user for access any view classes that implement.
-    
-    """
-    @classmethod
-    def as_view(cls, **initkwargs):
-        """Wraps the as_view() method in the login_required decorator function.
-    
-        """
-        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
-        return login_required(view)
-
-# Create your views here.
-
-#class wrapper for django's login function
-# alters incoming HTTP GET data to change the login form's
-# redirect field to "/". This prevents issues with AJAX views.
-class Login(View):
-    """Class wrapper for django's login function.
-        
-    """
-    def get(self, request, *args):
-        """Changes the redirect url that is issued after successful login.
-        
-        Args:
-            request: the HTTP request object.
-            args: Additional args.
-
-        Returns:
-            The result of django's auth.login function executed on the altered 
-                HTTP GET data.
-        """
-        #Note: the original GET dictionary is immutable,
-        # so we make a copy to alter it. Alternately we 
-        # could have changed the _mutable property.
-        get_copy = request.GET.copy()
-        get_copy['next'] = "/"
-        
-        #set _mutable back to prevent alteration by other functions
-        get_copy._mutable = request.GET._mutable 
-        request.GET = get_copy
-
-        return django_login(request)
-
-    def post(self, request, *args):
-        """Passes on the django auth.login response
-
-        """
-        return django_login(request)
+from django.views.generic import FormView, TemplateView
+#from django.contrib.auth.views import login as django_login
+from rest_framework import viewsets, permissions
+from rest_framework.generics import ListAPIView
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from inventory.serializers import UserSerializer, RoomSerializer, BuildingSerializer, ManufacturerSerializer, TypeSerializer, ModelSerializer, ItemSerializer, ItemRevisionSerializer, ItemSuggestionSerializer
+from inventory.models import Building, Room, Model, Manufacturer, Type, Item, Attribute, ItemRevision
+from inventory.forms import ItemForm2, MoveItemForm, AttachItemForm, ArchiveItemForm
 
 
 class MainList(LoginRequiredMixin, TemplateView):
@@ -96,41 +49,30 @@ class AjaxMainList(LoginRequiredMixin, View):
 class AjaxSearchItems(LoginRequiredMixin, View):
     """AJAX view that lists all active items that match the given search terms."""
     def get(self, request, *args):
-        #sort results by input
-        item_fields = [ f.name for f in Item._meta.fields ]
-        order_list = [] #list of fields to order_by
-        sort_fields = request.GET.get('sort_by','')
-        for rule in sort_fields.split(','):
-            #only use sort rules on fields that exist
-            if rule.replace('-','') in item_fields:
-                order_list.append(rule)
-        items = Item.objects.raw_query({'$text': {'$search': self.args[0]}}).order_by(*order_list)
+        search_term = self.args[0]
+        # build order list to use in sorting results. 
+        # the sort_by querystring is returned when a user has selected
+        #  a column heading for sorting in the search results
+        order_list = request.GET.get('sort_by','').split(',')
+        sort_order = [
+            (sort_field[1:], -1) if sort_field[0] == '-' else (sort_field, 1)
+            for sort_field in order_list
+            if sort_field
+        ]
+        
+        # search the database
+        items = Item.search(self.args[0], sort_order)
+        
         pagetitle = "Results for " + self.args[0]
         content_url = request.META['PATH_INFO']
         disable_add = True
+        show_location = True
         return render_to_response('ajax_item_list.html', locals())
-
-class AjaxIPRangeList(LoginRequiredMixin, View):
-    """AJAX view that lists saved IPRanges."""
-    def get(self, request, *args):
-        ranges = IPRange.objects.all()
-        pagetitle = "IP Ranges"
-        content_url = request.META['PATH_INFO']
-        return render_to_response('ajax_iprange_view.html', locals())
-
-class AjaxIPSweep(LoginRequiredMixin, View):
-    """AJAX view that lists results of IPRange sweep."""
-    def get(self, request, *args):
-        iprange = get_object_or_404(IPRange, id=self.args[0])
-        results = iprange.sweep()
-        pagetitle = "IP Sweep Results for " + str(iprange)
-        content_url = request.META['PATH_INFO']
-        return render_to_response('ajax_ipsweep_view.html', locals())
 
 class AjaxItemDetail(LoginRequiredMixin, View):
     """AJAX view that shows item details."""
     def get(self, request, *args):
-        item = get_object_or_404(Item, id=self.args[0])
+        item = get_object_or_404(Item, pk=self.args[0])
         revisions = item.itemrevision_set.order_by("-revised")
         content_url = request.META['PATH_INFO']
         return render_to_response('ajax_detail_view.html', locals())
@@ -138,7 +80,7 @@ class AjaxItemDetail(LoginRequiredMixin, View):
 class AjaxRoomView(LoginRequiredMixin, View):
     """AJAX View for room info requests. Lists all items in requested room."""
     def get(self, request, room_id, *args):
-        room = get_object_or_404(Room, id=room_id)#self.args[0])
+        room = get_object_or_404(Room, pk=room_id)#self.args[0])
         #sort results by input
         item_fields = [ f.name for f in Item._meta.fields ]
         order_list = [] #list of fields to order_by
@@ -162,13 +104,13 @@ class AjaxAttributeAdd(LoginRequiredMixin, View):
 
 class AjaxEditItem(LoginRequiredMixin, FormView):
     """AJAX view used to show an edit item dialog.
-    
+
         Attributes:
             template_name (string): The template to be rendered.
             form_class (class): The form class to be used for data validation
-            success_url (string): This is unused, statically set to prevent 
+            success_url (string): This is unused, statically set to prevent
                 errors in parent class methods.
-            
+
     """
     template_name = 'ajax_item_form.html'#'ajax_edit_item.html'
     form_class = ItemForm2
@@ -181,13 +123,15 @@ class AjaxEditItem(LoginRequiredMixin, FormView):
         context['models'] = Model.objects.all().order_by("name")
         context['attrSuggestions'] = Attribute.objects.all().order_by("name")
 
-        context['item'] = get_object_or_404(Item, id=self.args[0])
+        context['item'] = get_object_or_404(Item, pk=self.args[0])
         context['title'] = "Edit Item Form"
-        context['submit_url'] = "/inventory/item/" + context['item'].id + "/edit/"
+        context['submit_url'] = "/inventory/item/" + str(context['item'].pk) + "/edit/"
         return context
 
     def get_form(self, form_class=None):
-        item = get_object_or_404(Item, id=self.args[0])
+        item = get_object_or_404(Item, pk=self.args[0])
+        if not form_class:
+            form_class = self.form_class
         return form_class(self.request.POST, instance=item)
 
     def form_invalid(self, form):
@@ -208,13 +152,15 @@ class AjaxAddItem(AjaxEditItem):
         context['models'] = Model.objects.all().order_by("name")
 
         if(len(self.args) >= 1): #if room id has been passed
-            context['room'] = get_object_or_404(Room, id=self.args[0])
-        room_id = ("room/" + context['room'].id + "/") if ('room' in context) else ("")
+            context['room'] = get_object_or_404(Room, pk=self.args[0])
+        room_id = ("room/" + str(context['room'].pk) + "/") if ('room' in context) else ("")
         context['title'] = "Add Item Form"
         context['submit_url'] = "/inventory/" + room_id + "item/add/"
         return context
 
     def get_form(self, form_class=None):
+        if not form_class:
+            form_class = self.form_class
         return form_class(self.request.POST)
 
 class AjaxMoveItem(LoginRequiredMixin, FormView):
@@ -222,7 +168,9 @@ class AjaxMoveItem(LoginRequiredMixin, FormView):
     success_url = "/"
 
     def get_form(self, form_class=None):
-        item = get_object_or_404(Item, id=self.args[0])
+        item = get_object_or_404(Item, pk=self.args[0])
+        if not form_class:
+            form_class = self.form_class
         return form_class(self.request.POST, instance=item)
 
     def form_invalid(self, form):
@@ -294,8 +242,8 @@ class AjaxDetachItem(AjaxMoveItem):
         message = ""
         item = form.instance
         item_name = str(item.manufacturer) + " " + str(item.itemType)
-        old_item = Item.objects.get(id=item.id)
-        parent_item = Item.objects.get(id=old_item.item.id)
+        old_item = Item.objects.get(pk=item.pk)
+        parent_item = Item.objects.get(pk=old_item.item.pk)
         parent_name = str(parent_item.manufacturer) + " " + str(parent_item.itemType)
         if form.has_changed():
             form.save(user=self.request.user)
@@ -312,9 +260,11 @@ class AjaxArchiveItem(LoginRequiredMixin, FormView):
     success_url = "/"
 
     def get_form(self, form_class=None):
-        item = get_object_or_404(Item, id=self.args[0])
+        item = get_object_or_404(Item, pk=self.args[0])
+        if not form_class:
+            form_class = self.form_class
         return form_class(self.request.POST, instance=item)
-        
+
     def form_invalid(self, form):
         alert_type = "danger"
         #build error message
@@ -337,3 +287,67 @@ class AjaxArchiveItem(LoginRequiredMixin, FormView):
             message = item_name + " was already archived."
         return render_to_response('ajax_move_item_confirm.html', locals())
 
+
+
+# API Views
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+class BuildingViewSet(viewsets.ModelViewSet):
+    queryset = Building.objects.all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = BuildingSerializer
+
+class RoomViewSet(viewsets.ModelViewSet):
+    queryset = Room.objects.all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = RoomSerializer
+
+class ManufacturerViewSet(viewsets.ModelViewSet):
+    queryset = Manufacturer.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ManufacturerSerializer
+
+class ModelViewSet(viewsets.ModelViewSet):
+    queryset = Model.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ModelSerializer
+
+class TypeViewSet(viewsets.ModelViewSet):
+    queryset = Type.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TypeSerializer
+
+class ItemViewSet(viewsets.ModelViewSet):
+    queryset = Item.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ItemSerializer
+
+    def perform_update(self, serializer, *args, **kwargs):
+        """Override perform_update to add a "blame" user which will be tagged
+        to any ItemRevisions created as a consequence of this update.
+        TODO: This might be better accomplished with serializer attributes: 
+         https://www.django-rest-framework.org/api-guide/serializers/#passing-additional-attributes-to-save
+        """
+        # monkey patch blame user directly to model instance
+        # this will be used in models.Item.save_with_revisions(...)
+        serializer.instance.blame = self.request.user
+        super().perform_update(serializer, *args, **kwargs)
+
+class ItemSuggestion(ListAPIView):
+    serializer_class = ItemSuggestionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        serial = self.request.query_params.get('serial', 'MXL0331234')
+        if not serial or type(serial) != str:
+            return Response(None)
+        return Item.guessFromSerial2(serial)
+
+class ItemRevisionViewSet(viewsets.ReadOnlyModelViewSet):
+    """Revisions should never be created manually, so this is read only."""
+    queryset = ItemRevision.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ItemRevisionSerializer

@@ -1,3 +1,4 @@
+{% load jarvis_filters %}
 <div class="panel panel-primary">
   <div class="panel-heading">
     <h3 class="panel-title">Item Details</h3>
@@ -16,6 +17,55 @@
           {% endif %}
         </table>
     </div>
+    {% if item.attributes.Serial %}
+    
+    
+    <script src="/static/js/qrcode.min.js"></script>
+    <script type="text/javascript">
+      const qr_size = 48
+      var qrcode = new QRCode(document.getElementById("qrcode"), {
+          text: '{{item.attributes.Serial}}',
+          width: qr_size,
+          height: qr_size,
+          colorDark : "#000000",
+          colorLight : "#ffffff",
+          correctLevel : QRCode.CorrectLevel.H
+      });
+      function print_label() {
+        
+        let qr_img = $('#qrcode>img');
+        qr_img.css('display', 'inline-block').css('margin-left', '6px')
+        let win1 = window.open();
+        if (win1) {
+          let sid_div = $('<div>')
+            .text('{{item.attributes|get:"State ID"}}')
+          let serial_div = $('<div>')
+            .text('{{item.attributes.Serial}}')
+          let inline_div = $('<div>')
+            .css('display', 'inline-block')
+            .css('vertical-align', 'bottom')
+            .css('margin-left', '10px')
+            .css('font-weight', 'bold')
+            .css('font-size', '12px')
+            .css('font-family', 'monospace')
+            .append(sid_div, [serial_div])
+          win1.document.write(qr_img[0].outerHTML + inline_div[0].outerHTML)
+          win1.print()
+          win1.close()
+        }
+        else {
+          
+        }
+      }
+      
+    </script>
+    <div id="qrcode"></div>
+    <br />
+    <button type="button" id="jarv-print-label" class="btn btn-primary btn-xs" onclick="print_label()" data-toggle="tooltip" title="popups must be enabled">Print Label</button>
+    {% else %}
+    <button type="button" class="btn btn-danger btn-xs" style="pointer-events: none;" disabled>Print Label</button>
+    {% endif %}
+
   </div>
 </div>
 {% if item.itemrevision_set.count > 0 %}

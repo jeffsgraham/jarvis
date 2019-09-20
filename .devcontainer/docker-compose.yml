@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  db:
+    image: mongo
+    expose:
+      - "27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=test
+  db_admin:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_OPTIONS_EDITORTHEME=ambiance
+      - ME_CONFIG_MONGODB_SERVER=db
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=user
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+    ports:
+      - "8081:8081"
+  web:
+    build: .
+    working_dir: /workspaces/jarvis/
+    command: tail -f /dev/null
+    volumes:
+      - ..:/workspaces/
+    environment:
+      # secret key can be passed through env vars. If it isn't specified, 
+      #  one will be generated every time the container is restarted
+      # SECURITY WARNING: keep the secret key used in production secret!
+      - SECRET_KEY=ys=_@rohqjz1*r=czvk9oy4olep%s)x^=e5q=37s$dtmoya!ju
+      - DB_HOST=db
+      - DB_NAME=test
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DJANGO_DEBUG=1 #comment this line or set to 0 to turn off debug
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

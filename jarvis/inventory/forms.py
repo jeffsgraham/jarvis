@@ -1,5 +1,5 @@
 from django.forms import ModelForm, TextInput, CharField
-from models import *
+from inventory.models import *
 
 
 
@@ -14,7 +14,7 @@ class ItemForm(ModelForm):
 
     class Meta:
         model = Item
-        exclude = ('attributes', 'active', 'created', 'item', 'uptime')
+        exclude = ('attributes', 'active', 'created', 'item')
         widgets = {
             'itemType': TextInput(),
             'manufacturer': TextInput(),
@@ -39,7 +39,7 @@ class BaseItemForm(ModelForm):
 class ItemForm2(BaseItemForm):
     class Meta:
         model = Item
-        exclude = ('active', 'created', 'item', 'uptime')
+        exclude = ('active', 'created', 'item',)
         widgets = {
             'itemType': TextInput(),
             'manufacturer': TextInput(),
@@ -76,3 +76,4 @@ class ArchiveItemForm(BaseItemForm):
     class Meta:
         model = Item
         fields = ('active',)
+

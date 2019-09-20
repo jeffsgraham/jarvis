@@ -17,7 +17,7 @@ class AbstractViewGetTests(AbstractViewTests):
         resp = self.client.get(self.base_url, follow=True)
         self.assertEqual(len(resp.redirect_chain), 1) #exactly one redirect
         #redirect is to login page
-        self.assertTrue(resp.redirect_chain[0][0].startswith("http://testserver/accounts/login/?next=" + self.base_url))
+        self.assertEqual(resp.redirect_chain[0][0],"/accounts/login/?next=" + self.base_url)
         self.assertEqual(resp.redirect_chain[0][1], 302) #http code is 302
 
     def test_resp_code(self):
@@ -38,7 +38,7 @@ class AbstractViewPostTests(AbstractViewTests):
         resp = self.client.post(self.base_url, follow=True)
         self.assertEqual(len(resp.redirect_chain), 1) #exactly one redirect
         #redirect is to login page
-        self.assertTrue(resp.redirect_chain[0][0].startswith("http://testserver/accounts/login/?next=" + self.base_url))
+        self.assertEqual(resp.redirect_chain[0][0], "/accounts/login/?next=" + self.base_url)
         self.assertEqual(resp.redirect_chain[0][1], 302) #http code is 302
         
     
@@ -61,7 +61,7 @@ class AjaxRoomViewTestCase(AbstractViewGetTests, TestCase):
         super(AjaxRoomViewTestCase, self).setUp()
         building = Building.objects.create(name="Alderwood", abbrev="ALD")
         room = Room.objects.create(number="101", building=building)
-        self.base_url += room.id + self.suffix_url
+        self.base_url += str(room.pk) + self.suffix_url
 
 class AjaxEditItemTestCase(AbstractViewGetTests, TestCase):
     base_url = "/inventory/item/"
@@ -74,14 +74,14 @@ class AjaxEditItemTestCase(AbstractViewGetTests, TestCase):
         hpManuf = Manufacturer.objects.get_or_create(name="HP")[0]
         dcModel = Model.objects.get_or_create(name="DC8300")[0]
         item = Item.objects.create(itemType=compType, manufacturer=hpManuf, model=dcModel)
-        self.base_url += item.id + self.suffix_url
+        self.base_url += str(item.pk) + self.suffix_url
 
 """
     def get_context_data(self, **kwargs):
         context = super(AjaxEditItem, self).get_context_data(**kwargs)
         context['item'] = get_object_or_404(Item, id=self.args[0])
         context['title'] = "Edit Item Form"
-        context['submit_url'] = "/ajax_edit_item/" + context['item'].id + "/"
+        context['submit_url'] = "/ajax_edit_item/" + context['item'].pk + "/"
         return context
 
     def get_form(self, form_class=None):
@@ -108,7 +108,7 @@ class AjaxAddItemToRoomTestCase(AbstractViewGetTests, AbstractViewPostTests, Tes
         super(AjaxAddItemToRoomTestCase, self).setUp()
         building = Building.objects.create(name="Alderwood", abbrev="ALD")
         room = Room.objects.create(number="101", building=building)
-        self.base_url += room.id + self.suffix_url
+        self.base_url += str(room.pk) + self.suffix_url
 
 """
 class AjaxAddItem(AjaxEditItem):
@@ -117,7 +117,7 @@ class AjaxAddItem(AjaxEditItem):
         context = super(AjaxEditItem, self).get_context_data(**kwargs) #grandparent's method
         if(len(self.args) >= 1): #if room id has been passed
             context['room'] = get_object_or_404(Room, id=self.args[0])
-        room_id = (context['room'].id + "/") if ('room' in context) else ("")
+        room_id = (context['room'].pk + "/") if ('room' in context) else ("")
         context['title'] = "Add Item Form"
         context['submit_url'] = "/ajax_add_item/" + room_id
         return context

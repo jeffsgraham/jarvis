@@ -9,7 +9,6 @@
     <h4 id="jarv-sidebar-links">Links</h4>
     <ul class="nav nav-sidebar">
         <li class="jarv-sidebar-nav active"><a href="/">Inventory</a></li>
-        <li class="jarv-sidebar-nav"><a onclick="jarv_get_content('inventory/iprange/all/');" href="#" >IP Ranges</a></li>
         <li class="jarv-sidebar-nav"><a href="admin/">Admin</a></li>
     </ul>
     <hr />
@@ -24,11 +23,11 @@
         {% for building in buildings %}
         <li class="jarv-sidebar-building">
             <a href="#" class="jarv-hover-expand">{{ building.name }}</a>
-            <ul id="jarv-room-list-{{building.id}}" class="nav nav-sidebar collapse" style="height:0px;">
-                {% for room in rooms %}
-                {% if room.building_id == building.id %}
-                <li class="jarv-sidebar-room" id="{{room.id}}" description="{{room}}"><a onclick="jarv_get_content('/inventory/room/{{room.pk}}/item/all/');" href="#">{{room.number}}</a></li>
-                {% endif %}
+            <ul id="jarv-room-list-{{building.pk}}" class="nav nav-sidebar collapse" style="height:0px;">
+                {% for room in building.room_set.all %}
+                
+                <li class="jarv-sidebar-room" id="{{room.pk}}" description="{{room}}"><a onclick="jarv_get_content('/inventory/room/{{room.pk}}/item/all/');" href="#">{{room.number}}</a></li>
+                
                 {% endfor %}
             </ul>
         </li>

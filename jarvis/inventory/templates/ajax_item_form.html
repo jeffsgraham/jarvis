@@ -91,9 +91,9 @@
                             </div>
                         </div>
                     </div>
-                <input type="hidden" name="id" id="id" value="{{item.id}}" />
+                <input type="hidden" name="id" id="id" value="{{item.pk}}" />
                 {% if room %}
-                <input type="hidden" name="room" id="room" value="{{room.id}}" />
+                <input type="hidden" name="room" id="room" value="{{room.pk}}" />
                 {% elif item.room_id %}
                 <input type="hidden" name="room" id="room" value="{{item.room_id}}" />
                 {% else %}
