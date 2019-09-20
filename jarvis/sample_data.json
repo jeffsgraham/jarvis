@@ -1,0 +1,177 @@
+[
+{
+  "model": "inventory.building",
+  "pk": "5d8541d1fbe14085008e6c49",
+  "fields": {
+    "name": "Building 1",
+    "abbrev": "BD1"
+  }
+},
+{
+  "model": "inventory.building",
+  "pk": "5d8541d1fbe14085008e6c4c",
+  "fields": {
+    "name": "Building 2",
+    "abbrev": "BD2"
+  }
+},
+{
+  "model": "inventory.room",
+  "pk": "5d8541d1fbe14085008e6c4a",
+  "fields": {
+    "number": "104",
+    "building": "BD1",
+    "schedule_url": null
+  }
+},
+{
+  "model": "inventory.room",
+  "pk": "5d8541d1fbe14085008e6c4b",
+  "fields": {
+    "number": "105",
+    "building": "BD1",
+    "schedule_url": null
+  }
+},
+{
+  "model": "inventory.room",
+  "pk": "5d8541d1fbe14085008e6c4d",
+  "fields": {
+    "number": "101",
+    "building": "BD2",
+    "schedule_url": null
+  }
+},
+{
+  "model": "inventory.room",
+  "pk": "5d8541d1fbe14085008e6c4e",
+  "fields": {
+    "number": "102",
+    "building": "BD2",
+    "schedule_url": null
+  }
+},
+{
+  "model": "inventory.room",
+  "pk": "5d8541d1fbe14085008e6c4f",
+  "fields": {
+    "number": "103",
+    "building": "BD2",
+    "schedule_url": null
+  }
+},
+{
+  "model": "inventory.manufacturer",
+  "pk": "5d8541c5fbe14085008e6c40",
+  "fields": {
+    "name": "Panasonic"
+  }
+},
+{
+  "model": "inventory.manufacturer",
+  "pk": "5d8541c5fbe14085008e6c43",
+  "fields": {
+    "name": "Dell"
+  }
+},
+{
+  "model": "inventory.manufacturer",
+  "pk": "5d8541c5fbe14085008e6c46",
+  "fields": {
+    "name": "Extron"
+  }
+},
+{
+  "model": "inventory.type",
+  "pk": "5d8541c5fbe14085008e6c41",
+  "fields": {
+    "name": "Projector"
+  }
+},
+{
+  "model": "inventory.type",
+  "pk": "5d8541c5fbe14085008e6c44",
+  "fields": {
+    "name": "Computer"
+  }
+},
+{
+  "model": "inventory.type",
+  "pk": "5d8541c5fbe14085008e6c47",
+  "fields": {
+    "name": "AV Switcher"
+  }
+},
+{
+  "model": "inventory.model",
+  "pk": "5d8541c5fbe14085008e6c42",
+  "fields": {
+    "name": "PT-FW300U",
+    "manufacturer": "Panasonic",
+    "itemType": "Projector",
+    "partNumbers": "[]"
+  }
+},
+{
+  "model": "inventory.model",
+  "pk": "5d8541c5fbe14085008e6c45",
+  "fields": {
+    "name": "Optiplex 3060 SFF",
+    "manufacturer": "Dell",
+    "itemType": "Computer",
+    "partNumbers": "[]"
+  }
+},
+{
+  "model": "inventory.model",
+  "pk": "5d8541c5fbe14085008e6c48",
+  "fields": {
+    "name": "IN1608 xi IPCP MA 70",
+    "manufacturer": "Extron",
+    "itemType": "AV Switcher",
+    "partNumbers": "[]"
+  }
+},
+{
+  "model": "inventory.item",
+  "pk": "5d8541d7fbe14085008e6c50",
+  "fields": {
+    "itemType": "Projector",
+    "manufacturer": "Panasonic",
+    "model": "PT-FW300U",
+    "created": "2019-09-20T21:17:11.827",
+    "room": null,
+    "item": null,
+    "active": true,
+    "attributes": "OrderedDict()"
+  }
+},
+{
+  "model": "inventory.item",
+  "pk": "5d8541d7fbe14085008e6c51",
+  "fields": {
+    "itemType": "Computer",
+    "manufacturer": "Dell",
+    "model": "Optiplex 3060 SFF",
+    "created": "2019-09-20T21:17:11.847",
+    "room": null,
+    "item": null,
+    "active": true,
+    "attributes": "OrderedDict()"
+  }
+},
+{
+  "model": "inventory.item",
+  "pk": "5d8541d7fbe14085008e6c52",
+  "fields": {
+    "itemType": "AV Switcher",
+    "manufacturer": "Extron",
+    "model": "IN1608 xi IPCP MA 70",
+    "created": "2019-09-20T21:17:11.878",
+    "room": null,
+    "item": null,
+    "active": true,
+    "attributes": "OrderedDict()"
+  }
+}
+]
