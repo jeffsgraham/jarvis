@@ -103,13 +103,34 @@
   }
 },
 {
+  "model": "inventory.attribute",
+  "pk": "5d85909369f5634fdd46e7b9",
+  "fields": {
+    "name": "Serial"
+  }
+},
+{
+  "model": "inventory.attribute",
+  "pk": "5d85909b69f5634fdd46e7be",
+  "fields": {
+    "name": "Asset Tag"
+  }
+},
+{
+  "model": "inventory.attribute",
+  "pk": "5d8590be69f5634fdd46e7c3",
+  "fields": {
+    "name": "MAC Address"
+  }
+},
+{
   "model": "inventory.model",
   "pk": "5d8541c5fbe14085008e6c42",
   "fields": {
     "name": "PT-FW300U",
     "manufacturer": "Panasonic",
     "itemType": "Projector",
-    "partNumbers": "[]"
+    "partNumbers": []
   }
 },
 {
@@ -119,7 +140,7 @@
     "name": "Optiplex 3060 SFF",
     "manufacturer": "Dell",
     "itemType": "Computer",
-    "partNumbers": "[]"
+    "partNumbers": []
   }
 },
 {
@@ -129,7 +150,7 @@
     "name": "IN1608 xi IPCP MA 70",
     "manufacturer": "Extron",
     "itemType": "AV Switcher",
-    "partNumbers": "[]"
+    "partNumbers": []
   }
 },
 {
@@ -140,10 +161,10 @@
     "manufacturer": "Panasonic",
     "model": "PT-FW300U",
     "created": "2019-09-20T21:17:11.827",
-    "room": null,
+    "room": "5d8541d1fbe14085008e6c4a",
     "item": null,
     "active": true,
-    "attributes": "OrderedDict()"
+    "attributes": {}
   }
 },
 {
@@ -157,7 +178,7 @@
     "room": null,
     "item": null,
     "active": true,
-    "attributes": "OrderedDict()"
+    "attributes": {}
   }
 },
 {
@@ -171,7 +192,7 @@
     "room": null,
     "item": null,
     "active": true,
-    "attributes": "OrderedDict()"
+    "attributes": {}
   }
 }
 ]
